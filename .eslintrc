@@ -1,0 +1,97 @@
+{
+    "root": true,
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module",
+        "project": "./tsconfig.json"
+    },
+    "env": {
+        "node": true,
+        "es6": true,
+        "jest": true
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "extends": [
+        "airbnb-base",
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+        "no-console": "off",
+        "indent": "off",
+        "@typescript-eslint/indent": [
+            "error",
+            4
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "no-multiple-empty-lines": [
+            "error",
+            {
+                "max": 1,
+                "maxEOF": 0
+            }
+        ],
+        "@typescript-eslint/no-inferrable-types": "off",
+        "brace-style": [
+            2,
+            "stroustrup"
+        ],
+        "@typescript-eslint/brace-style": [
+            2,
+            "stroustrup"
+        ],
+        "@typescript-eslint/no-explicit-any": "error",
+        "object-property-newline": [
+            "error",
+            {
+                "allowAllPropertiesOnSameLine": false
+            }
+        ],
+        "@typescript-eslint/typedef": [
+            "error",
+            {
+                "parameter": true,
+                "arrowParameter": true,
+                "variableDeclaration": true,
+                "memberVariableDeclaration": true,
+                "propertyDeclaration": true,
+                "arrayDestructuring": true,
+                "objectDestructuring": true
+            }
+        ],
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
+            "warn",
+            {
+                "args": "none"
+            }
+        ],
+        "@typescript-eslint/type-annotation-spacing": [
+            "error",
+            {
+                "before": false,
+                "after": true
+            }
+        ],
+        "@typescript-eslint/consistent-type-definitions": [
+            "error",
+            "interface"
+        ],
+        "no-use-before-define": "off",
+        "@typescript-eslint/no-use-before-define": [
+            "error",
+            {
+                "enums": true,
+                "typedefs": true,
+                "ignoreTypeReferences": false
+            }
+        ],
+        "no-constant-condition": "off"
+    }
+}

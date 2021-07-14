@@ -1,7 +1,8 @@
 import { Sequelize } from 'sequelize';
-import { config, ProdDevTestLiteral } from '../config/config';
+import * as config from '../config/config';
 import User from './user';
 
+type ProdDevTestLiteral = 'production' | 'development' | 'test';
 const env: ProdDevTestLiteral = process.env.NODE_ENV as ProdDevTestLiteral || 'development';
 
 const sequelize: Sequelize = new Sequelize(

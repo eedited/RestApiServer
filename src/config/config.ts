@@ -1,5 +1,5 @@
+import { Dialect } from 'sequelize';
 import dotenv from 'dotenv';
-// import { Dialect } from 'sequelize';
 
 dotenv.config();
 
@@ -9,7 +9,7 @@ interface databaseConfig {
     database: string;
     host: string;
     port: string;
-    dialect: 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | undefined;
+    dialect: Dialect;
     logging: boolean;
 }
 

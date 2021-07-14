@@ -8,7 +8,8 @@
         "build": "./node_modules/.bin/tsc --build",
         "build:force": "./node_modules/.bin/tsc --build --force",
         "clean": "./node_modules/.bin/tsc --build --clean",
-        "dev": "./node_modules/.bin/tsc-watch --onSuccess \"node ./dist\"",
+        "dev": "./node_modules/.bin/tsc-watch --noEmit --onSuccess \"ts-node --files ./src\"",
+        "dev:dist": "./node_modules/.bin/tsc-watch --onSuccess \"node ./dist\"",
         "test": "./node_modules/.bin/jest",
         "coverage": "./node_modules/.bin/jest --coverage"
     },
@@ -33,6 +34,7 @@
         "@types/express": "^4.17.13",
         "@types/express-session": "^1.17.4",
         "@types/morgan": "^1.9.3",
+        "@types/node": "^16.3.2",
         "@types/passport": "^1.0.7",
         "@types/passport-local": "^1.0.34",
         "@types/validator": "^13.6.3",
@@ -42,6 +44,7 @@
         "eslint-config-airbnb-base": "^14.2.1",
         "eslint-plugin-import": "^2.23.4",
         "jest": "^27.0.6",
+        "ts-node": "^10.1.0",
         "tsc-watch": "^4.4.0",
         "typescript": "^4.3.5"
     }

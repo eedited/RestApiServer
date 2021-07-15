@@ -1,8 +1,8 @@
-declare namespace Express {
-    export interface Request {
-        body: {
-            email: string,
-            password: string
-        }
-    }
-}
+// declare namespace Express {
+//     export interface Request {
+//         body: {
+//             email: string,
+//             password: string
+//         }
+//     }
+// }

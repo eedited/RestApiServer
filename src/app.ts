@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import session from 'express-session';
@@ -19,7 +19,7 @@ import authRouter from './routers/auth';
 /**
  * Express.Application Set
  */
-const app: express.Application = express();
+const app: Application = express();
 app.set('port', process.env.PORT || 8000);
 
 /**
@@ -33,7 +33,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
     resave: false,
     saveUninitialized: false,
-    secret: process.env.COOKIE_SECRET || 'bEd389Edxkfnl4nj2',
+    secret: String(process.env.COOKIE_SECRET),
     cookie: {
         httpOnly: true,
         secure: true,
@@ -71,7 +71,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // Error Handling
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     res.locals.message = err.message;
-    res.locals.error = process.env.NODE_ENV === 'production' ? {} : err;
+    res.locals.error = process.env.NODE_ENV === 'development' ? err : {};
     res.status(err.status || 500);
     res.render('error');
 });

@@ -1,9 +1,9 @@
-import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 
-export const isLoggedIn: expressMiddleware = (req: Express.Request, res: express.Response, next: express.NextFunction) => {
+export const isLoggedIn: expressMiddleware = (req: Request, res: Response, next: NextFunction) => {
     next();
 };
 
-export const isNotLoggedIn: expressMiddleware = (req: Express.Request, res: express.Response, next: express.NextFunction) => {
+export const isNotLoggedIn: expressMiddleware = (req: Request, res: Response, next: NextFunction) => {
     next();
 };

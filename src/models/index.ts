@@ -9,11 +9,7 @@ const sequelize: Sequelize = new Sequelize(
     config[env].database,
     config[env].username,
     config[env].password,
-    {
-        host: config[env].host,
-        dialect: config[env].dialect,
-        logging: config[env].logging,
-    },
+    config[env],
 );
 
 User.initialize(sequelize);

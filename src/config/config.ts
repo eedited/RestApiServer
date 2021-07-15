@@ -8,7 +8,7 @@ interface databaseConfig {
     password: string;
     database: string;
     host: string;
-    port: string;
+    port: number;
     dialect: Dialect;
     logging: boolean;
 }
@@ -18,8 +18,8 @@ export const production: databaseConfig = {
     password: process.env.DB_PASSWORD || '123',
     database: process.env.DB_DBNAME || 'typescript_test',
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || '3306',
-    dialect: 'mysql',
+    port: Number(process.env.DB_PORT) || 3306,
+    dialect: process.env.DB_PORT as Dialect || 'mysql',
     logging: false,
 };
 export const development: databaseConfig = {
@@ -27,8 +27,8 @@ export const development: databaseConfig = {
     password: process.env.DB_PASSWORD || '123',
     database: process.env.DB_DBNAME || 'typescript_test',
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || '3306',
-    dialect: 'mysql',
+    port: Number(process.env.DB_PORT) || 3306,
+    dialect: process.env.DB_PORT as Dialect || 'mysql',
     logging: false,
 };
 export const test: databaseConfig = {
@@ -36,7 +36,7 @@ export const test: databaseConfig = {
     password: process.env.DB_PASSWORD || '123',
     database: process.env.DB_DBNAME || 'typescript_test',
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || '3306',
-    dialect: 'mysql',
+    port: Number(process.env.DB_PORT) || 3306,
+    dialect: process.env.DB_PORT as Dialect || 'mysql',
     logging: false,
 };

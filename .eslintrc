@@ -114,6 +114,7 @@
         "import/extensions": [
             "off"
         ],
-        "import/first": "off"
+        "import/first": "off",
+        "object-curly-newline": "off"
     }
 }

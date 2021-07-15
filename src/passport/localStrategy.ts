@@ -2,7 +2,7 @@ import passport from 'passport';
 import * as localPassport from 'passport-local';
 import bcrypt from 'bcrypt';
 
-import User from '../models/user';
+import User from '../db/models/user';
 
 interface localStrategyConfigType {
     usernameField: string,

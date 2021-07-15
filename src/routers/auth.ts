@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-import User from '../models/user';
+import User from '../db/models/user';
 
 import { isLoggedIn, isNotLoggedIn } from '../middlewares/auth';
 

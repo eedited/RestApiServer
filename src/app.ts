@@ -8,7 +8,7 @@ import passport from 'passport';
 dotenv.config();
 
 import passportConfig from './passport';
-import * as db from './models';
+import db from './db';
 
 /**
  * Routers

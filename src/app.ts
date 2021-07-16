@@ -7,14 +7,14 @@ import passport from 'passport';
 
 dotenv.config();
 
-import passportConfig from './passport';
-import db from './db';
+// import passportConfig from './passport';
+// import db from './db';
 
 /**
  * Routers
  */
 import indexRouter from './routers';
-import authRouter from './routers/auth';
+// import authRouter from './routers/auth';
 
 /**
  * Express.Application Set
@@ -39,27 +39,27 @@ app.use(session({
         secure: true,
     },
 }));
-passportConfig();
-app.use(passport.initialize());
-app.use(passport.session());
+// passportConfig();
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 /**
  * Connect DB
 */
-db.sequelize
-    .sync({ force: false })
-    .then(() => {
-        console.log('Database Connected...');
-    })
-    .catch((err: Error) => {
-        console.error(err);
-    });
+// db.sequelize
+//     .sync({ force: false })
+//     .then(() => {
+//         console.log('Database Connected...');
+//     })
+//     .catch((err: Error) => {
+//         console.error(err);
+//     });
 
 /**
  * Connect Routers
  */
 app.use('/', indexRouter);
-app.use('/auth', authRouter);
+// app.use('/auth', authRouter);
 
 // 404 Page_Not_Found
 app.use((req: Request, res: Response, next: NextFunction) => {

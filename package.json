@@ -3,6 +3,9 @@
     "version": "0.0.0",
     "description": "SW Maestro 12th Team.eedited's Rest API Server",
     "main": "index.js",
+    "engines": {
+        "node": "14.16.1"
+    },
     "scripts": {
         "start": "NODE_ENV=production PORT=80 npm run build:force && node ./dist",
         "build": "./node_modules/.bin/tsc --build",
@@ -16,17 +19,15 @@
     "author": "eedited",
     "license": "ISC",
     "dependencies": {
+        "@prisma/client": "^2.27.0",
         "bcrypt": "^5.0.1",
         "cookie-parser": "^1.4.5",
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
         "express-session": "^1.17.2",
         "morgan": "^1.10.0",
-        "mysql2": "^2.2.5",
         "passport": "^0.4.1",
-        "passport-local": "^1.0.0",
-        "sequelize": "^6.6.5",
-        "sequelize-cli": "^6.2.0"
+        "passport-local": "^1.0.0"
     },
     "devDependencies": {
         "@types/bcrypt": "^5.0.0",
@@ -44,6 +45,7 @@
         "eslint-config-airbnb-base": "^14.2.1",
         "eslint-plugin-import": "^2.23.4",
         "jest": "^27.0.6",
+        "prisma": "^2.27.0",
         "ts-node": "^10.1.0",
         "tsc-watch": "^4.4.0",
         "typescript": "^4.3.5"

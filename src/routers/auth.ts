@@ -9,7 +9,7 @@ const router: Router = Router();
 
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     const { email, password }: { email: string; password: string } = req.body;
-    // console.log(email, password);
+
     try {
         const user: (User | null) = await User.findOne({ where: { email } });
         if (user) return res.redirect('/signup?err=user_already_exist');

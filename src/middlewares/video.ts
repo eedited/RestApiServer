@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, User, Video } from '@prisma/client';
 
 export const videoUploaded: expressMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const prisma: PrismaClient = new PrismaClient();
-    const { uploader }: { uploader: string } = req.body;
+    const { uploader }: Video = req.body;
 
     try {
         console.log('middleware');

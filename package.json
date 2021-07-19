@@ -6,6 +6,7 @@
     "engines": {
         "node": "14.16.1"
     },
+    "engineStrict": true,
     "scripts": {
         "start": "npm run build:force && cross-env NODE_ENV=production PORT=80 pm2 start ./dist -i -0",
         "shutdown": "./node_modules/.bin/pm2 kill",

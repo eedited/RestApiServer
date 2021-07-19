@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import bcrypt, { hash } from 'bcrypt';
+import bcrypt from 'bcrypt';
 import passport from 'passport';
-import { PrismaClient, users } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 
 import { isLoggedIn, isNotLoggedIn } from '../middlewares/auth';
 
@@ -9,23 +9,16 @@ const router: Router = Router();
 
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     const prisma: PrismaClient = new PrismaClient();
-    const { userId,
-        password,
-        birthday,
-        email }: {
-        userId: string;
-        password: string;
-        birthday: Date;
-        email: string;} = req.body;
+    const { userId, password, birthday, email }: User = req.body;
 
     try {
         console.log(req.body);
-        const user: (users | null) = await prisma.users.findUnique({ where: { userId } });
+        const user: (User | null) = await prisma.user.findUnique({ where: { userId } });
         if (user) return res.redirect('/signup?err=user_already_exist');
         const salt: number = Number(process.env.BCRYPT_SALT);
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
         const birthdayForQuery: Date = new Date(birthday);
-        await prisma.users.create({
+        await prisma.user.create({
             data: {
                 userId,
                 password: hashedPassword,

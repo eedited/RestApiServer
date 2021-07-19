@@ -2,7 +2,7 @@ import passport from 'passport';
 import localPassport from 'passport-local';
 import bcrypt from 'bcrypt';
 
-import { PrismaClient, users } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 
 interface localStrategyConfigType {
     usernameField: string,
@@ -17,7 +17,7 @@ type doneFunction = (error?: Error, user?: Express.User, options?: localPassport
 const localStrategyVerify: localPassport.VerifyFunction = async (email: string, password: string, done: doneFunction) => {
     const prisma: PrismaClient = new PrismaClient();
     try {
-        const user: (users | null) = await prisma.users.findUnique({ where: { email } });
+        const user: (User | null) = await prisma.user.findUnique({ where: { email } });
         if (!user) return done(undefined, undefined, { message: 'No Registered User' });
 
         const isMatched: boolean = await bcrypt.compare(password, user.password);

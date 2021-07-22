@@ -115,6 +115,8 @@
             "off"
         ],
         "import/first": "off",
-        "object-curly-newline": "off"
+        "object-curly-newline": "off",
+        "no-empty-function": "off",
+        "@typescript-eslint/no-empty-function": "off"
     }
 }

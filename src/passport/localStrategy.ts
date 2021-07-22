@@ -9,24 +9,24 @@ interface localStrategyConfigType {
     passwordField: string
 }
 const localStrategyConfig: localStrategyConfigType = {
-    usernameField: 'id',
+    usernameField: 'userId',
     passwordField: 'password',
 };
 
-type doneFunction = (error?: Error, user?: Express.User, options?: localPassport.IVerifyOptions) => void;
-const localStrategyVerify: localPassport.VerifyFunction = async (email: string, password: string, done: doneFunction) => {
+type doneFunctionType = (error: Error | null, user: Express.User | null) => void;
+const localStrategyVerify: localPassport.VerifyFunction = async (userId: string, password: string, done: doneFunctionType) => {
     const prisma: PrismaClient = new PrismaClient();
     try {
-        const user: (User | null) = await prisma.user.findUnique({ where: { email } });
-        if (!user) return done(undefined, undefined, { message: 'No Registered User' });
+        const user: (User | null) = await prisma.user.findUnique({ where: { userId } });
+        if (!user) return done(null, null);
 
         const isMatched: boolean = await bcrypt.compare(password, user.password);
-        if (!isMatched) return done(undefined, undefined, { message: 'Password does not match' });
+        if (!isMatched) return done(null, null);
 
-        return done(undefined, user);
+        return done(null, user);
     }
     catch (err) {
-        return done(err);
+        return done(err, null);
     }
 };
 

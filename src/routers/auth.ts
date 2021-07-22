@@ -1,59 +1,94 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-import { PrismaClient, User } from '@prisma/client';
-
+import { User } from '@prisma/client';
+import DB from '../db';
 import { isLoggedIn, isNotLoggedIn } from '../middlewares/auth';
 
 const router: Router = Router();
 
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
-    const prisma: PrismaClient = new PrismaClient();
-    const { userId, password, birthday, email }: User = req.body;
+    const { userId, password, email, birthday }: User = req.body;
 
     try {
-        console.log(req.body);
-        const user: (User | null) = await prisma.user.findUnique({ where: { userId } });
-        if (user) return res.redirect('/signup?err=user_already_exist');
+        const user1: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
+        if (user1) {
+            return res.status(401).json({
+                success: false,
+                info: 'Same userId already exists',
+            });
+        }
+
+        const user2: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
+        if (user2) {
+            return res.status(402).json({
+                success: false,
+                info: 'The email is already used for another ID',
+            });
+        }
+
         const salt: number = Number(process.env.BCRYPT_SALT);
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
-        const birthdayForQuery: Date = new Date(birthday);
-        await prisma.user.create({
+
+        await DB.prisma.user.create({
             data: {
                 userId,
                 password: hashedPassword,
-                birthday: birthdayForQuery,
+                birthday,
                 email,
             },
         });
-        return res.redirect('/');
+
+        return res.status(200).json({
+            success: true,
+        });
     }
     catch (err) {
-        return next(err);
+        return res.status(501).json({
+            success: false,
+        });
     }
 });
 
-interface Info {
-    message: string
-}
 router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate('local', (authErr: Error, user: Express.User, info: Info) => {
-        if (authErr) return next(authErr);
-        if (!user) return res.redirect(`/login?loginErr=${info.message}`);
+    passport.authenticate('local', (authErr: Error | null, user: Express.User | null) => {
+        if (authErr) {
+            return res.status(501).json({
+                success: false,
+            });
+        }
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                info: 'Unregistered user or incorrect password',
+            });
+        }
 
         return req.login(user, (err: Error) => {
             if (err) {
-                console.error(err);
-                next(err);
+                res.status(502).json({
+                    success: false,
+                });
             }
-            return res.json({ });
+            return res.status(200).json({
+                success: true,
+            });
         });
     })(req, res, next);
 });
 
 router.get('/logout', isLoggedIn, (req: Request, res: Response) => {
-    // 대충 redis에서 뭐 없애는 코드
-    res.redirect('/');
+    req.logOut();
+    req.session.destroy((err: Error | null) => {
+        if (err) {
+            res.status(501).json({
+                success: false,
+            });
+        }
+    });
+    return res.status(200).json({
+        success: true,
+    });
 });
 
 export default router;

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-import { User } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
 import DB from '../db';
 import { isLoggedIn, isNotLoggedIn } from '../middlewares/auth';
 
@@ -9,7 +9,6 @@ const router: Router = Router();
 
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     const { userId, password, email, birthday }: User = req.body;
-
     try {
         const user1: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
         if (user1) {
@@ -18,7 +17,6 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
                 info: 'Same userId already exists',
             });
         }
-
         const user2: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
         if (user2) {
             return res.status(402).json({
@@ -26,19 +24,29 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
                 info: 'The email is already used for another ID',
             });
         }
-
         const salt: number = Number(process.env.BCRYPT_SALT);
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
-
-        await DB.prisma.user.create({
-            data: {
+        let input: Prisma.UserCreateInput;
+        if (birthday) {
+            console.log(birthday);
+            const birthdayForQuery: Date = new Date(birthday as unknown as Date);
+            input = {
                 userId,
                 password: hashedPassword,
-                birthday,
+                birthday: birthdayForQuery,
                 email,
-            },
+            };
+        }
+        else {
+            input = {
+                userId,
+                password: hashedPassword,
+                email,
+            };
+        }
+        await DB.prisma.user.create({
+            data: input,
         });
-
         return res.status(200).json({
             success: true,
         });

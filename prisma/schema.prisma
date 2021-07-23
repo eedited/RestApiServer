@@ -17,24 +17,25 @@ model User {
     proTag         Boolean      @default(false)
     createdAt      DateTime     @default(now())
     updatedAt      DateTime     @updatedAt
-    videoliker     VideoLiker[]
-    videos         Video[]
+    VideoLiker     VideoLiker[]
+    Video         Video[]
 }
 
 model VideoLiker {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     userId    String   @db.VarChar(50)
-    videoId   Int
-    users     User     @relation(fields: [userId], references: [userId])
-    videos    Video    @relation(fields: [videoId], references: [id])
+    videoId   String
+    uploader  String   @db.VarChar(50)
+    User     User     @relation(fields: [userId], references: [userId])
+    Video    Video    @relation(fields: [uploader, videoId], references: [uploader, id])
 
-    @@id([userId, videoId])
-    @@index([videoId], name: "videoId")
+    @@id([uploader, userId, videoId])
 }
 
 model Video {
-    id          Int          @id @default(autoincrement())
+    uploader    String       @db.VarChar(50)
+    id          String          @default(uuid())
     title       String       @db.VarChar(50)
     discription String       @db.Text
     url         String       @db.VarChar(100)
@@ -42,9 +43,8 @@ model Video {
     viewCnt     Int          @default(0)
     createdAt   DateTime     @default(now())
     updatedAt   DateTime     @updatedAt
-    uploader    String       @db.VarChar(50)
-    users       User         @relation(fields: [uploader], references: [userId])
-    videoliker  VideoLiker[]
+    User       User         @relation(fields: [uploader], references: [userId])
+    VideoLiker  VideoLiker[]
 
-    @@index([uploader], name: "uploader")
+    @@id([uploader, id])
 }

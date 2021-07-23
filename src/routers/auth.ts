@@ -29,7 +29,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         let input: Prisma.UserCreateInput;
         if (birthday) {
             console.log(birthday);
-            const birthdayForQuery: Date = new Date(birthday as unknown as Date);
+            const birthdayForQuery: Date = new Date(birthday);
             input = {
                 userId,
                 password: hashedPassword,

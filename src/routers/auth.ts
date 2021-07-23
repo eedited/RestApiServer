@@ -28,12 +28,10 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
         let input: Prisma.UserCreateInput;
         if (birthday) {
-            console.log(birthday);
-            const birthdayForQuery: Date = new Date(birthday);
             input = {
                 userId,
                 password: hashedPassword,
-                birthday: birthdayForQuery,
+                birthday: new Date(birthday),
                 email,
             };
         }

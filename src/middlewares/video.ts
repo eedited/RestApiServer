@@ -6,12 +6,9 @@ export const videoUploaded: expressMiddleware = async (req: Request, res: Respon
     const { uploader }: Video = req.body;
 
     try {
-        console.log('middleware');
-        const user: (User | null) = await prisma.user.findUnique({ where: { userId: uploader } });
-        if (!user) return res.redirect('/upload?err=uploader_not_exist');
         await prisma.user.update({
             where: { userId: uploader },
-            data: { uploadVideoCnt: user.uploadVideoCnt + 1 },
+            data: { uploadVideoCnt: { increment: 1 } },
         });
         return res.redirect('/');
     }

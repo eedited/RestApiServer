@@ -11,6 +11,7 @@ model User {
     userId         String       @id @db.VarChar(50)
     password       String       @db.VarChar(100)
     birthday       DateTime?    @db.Date
+    nickname       String       @unique @db.VarChar(10)
     email          String       @unique @db.VarChar(100)
     followerCnt    Int          @default(0)
     uploadVideoCnt Int          @default(0)
@@ -19,6 +20,8 @@ model User {
     updatedAt      DateTime     @updatedAt
     VideoLiker     VideoLiker[]
     Video         Video[]
+
+    @@index([email], name: "email")
 }
 
 model VideoLiker {

@@ -10,7 +10,8 @@ router.get('/', async (req: Request, res: Response) => {
     try {
         const result: Video[] = await DB.prisma.video.findMany({ });
         return res.status(200).json({
-            success: result,
+            success: true,
+            result,
         });
     }
     catch (err) {
@@ -28,7 +29,8 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
             },
         });
         return res.status(200).json({
-            success: result,
+            success: true,
+            result,
         });
     }
     catch (err) {
@@ -46,7 +48,8 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
             },
         });
         return res.status(200).json({
-            success: result,
+            success: true,
+            result,
         });
     }
     catch (err) {

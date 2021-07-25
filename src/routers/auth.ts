@@ -33,26 +33,14 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         }
         const salt: number = Number(process.env.BCRYPT_SALT);
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
-        let input: Prisma.UserCreateInput;
-        if (birthday) {
-            input = {
-                userId,
-                password: hashedPassword,
-                birthday: new Date(birthday),
-                email,
-                nickname,
-            };
-        }
-        else {
-            input = {
-                userId,
-                password: hashedPassword,
-                email,
-                nickname,
-            };
-        }
         await DB.prisma.user.create({
-            data: input,
+            data: {
+                userId,
+                password: hashedPassword,
+                birthday: birthday && new Date(birthday),
+                email,
+                nickname,
+            },
         });
         return res.status(200).json({
             success: true,

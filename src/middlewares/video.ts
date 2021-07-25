@@ -10,9 +10,13 @@ export const videoUploaded: expressMiddleware = async (req: Request, res: Respon
             where: { userId: uploader },
             data: { uploadVideoCnt: { increment: 1 } },
         });
-        return res.redirect('/');
+        return res.status(200).json({
+            upload: 'success',
+        });
     }
     catch (err) {
-        return next(err);
+        return res.status(501).json({
+            success: false,
+        });
     }
 };

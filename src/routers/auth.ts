@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import bcrypt, { hash } from 'bcrypt';
+import bcrypt from 'bcrypt';
 import passport from 'passport';
 import { User, Prisma } from '@prisma/client';
 import DB from '../db';
@@ -109,10 +109,10 @@ router.get('/logout', isLoggedIn, (req: Request, res: Response) => {
 router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
     const { email }: User = req.body;
     try {
-        const user1: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
-        if (user1) {
+        const user: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
+        if (user) {
             return res.status(200).json({
-                id: user1.userId,
+                id: user.userId,
             });
         }
         return res.status(400).json({
@@ -129,8 +129,8 @@ router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
 router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response) => {
     const { userId, email }: User = req.body;
     try {
-        const user1: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
-        if (user1 && user1.email === email) {
+        const user: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
+        if (user && user.email === email) {
             const salt: number = Number(process.env.BCRYPT_SALT);
             const changedPassword: string = Math.random().toString(36).slice(2);
             const hashedPassword: string = await bcrypt.hash(changedPassword, salt);
@@ -146,7 +146,7 @@ router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response)
                 password: changedPassword,
             });
         }
-        if (user1) {
+        if (user) {
             return res.status(400).json({
                 email: 'incorrect',
             });

@@ -1,18 +1,67 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import { PrismaClient, User, Video } from '@prisma/client';
+import { User, Video } from '@prisma/client';
+import { Prisma } from '.prisma/client';
+import DB from '../db';
 import { videoUploaded } from '../middlewares/video';
 
 const router: Router = Router();
 
-router.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
-    const prisma: PrismaClient = new PrismaClient();
-    const { title, discription, url, uploader }: Video = req.body;
-
+router.get('/', async (req: Request, res: Response) => {
     try {
-        console.log(req.body);
-        const user: (User | null) = await prisma.user.findUnique({ where: { userId: uploader } });
+        const result: Video[] = await DB.prisma.video.findMany({ });
+        return res.status(200).json({
+            success: result,
+        });
+    }
+    catch (err) {
+        return res.status(501).json({
+            success: false,
+        });
+    }
+});
+
+router.get('/sort/latest', async (req: Request, res: Response) => {
+    try {
+        const result: Video[] = await DB.prisma.video.findMany({
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+        return res.status(200).json({
+            success: result,
+        });
+    }
+    catch (err) {
+        return res.status(501).json({
+            success: false,
+        });
+    }
+});
+
+router.get('/sort/thumbup', async (req: Request, res: Response) => {
+    try {
+        const result: Video[] = await DB.prisma.video.findMany({
+            orderBy: {
+                likeCnt: 'desc',
+            },
+        });
+        return res.status(200).json({
+            success: result,
+        });
+    }
+    catch (err) {
+        return res.status(501).json({
+            success: false,
+        });
+    }
+});
+
+router.post('/upload', async (req: Request, res: Response, next: NextFunction) => {
+    const { title, discription, url, uploader }: Video = req.body;
+    try {
+        const user: (User | null) = await DB.prisma.user.findUnique({ where: { userId: uploader } });
         if (!user) return res.redirect('/upload?err=uploader_not_exist');
-        await prisma.video.create({
+        await DB.prisma.video.create({
             data: {
                 title,
                 discription,
@@ -20,11 +69,32 @@ router.post('/upload', async (req: Request, res: Response, next: NextFunction) =
                 uploader,
             },
         });
-        return next();
+        return res.status(200).json({
+            success: true,
+        });
     }
     catch (err) {
-        return next(err);
+        return res.status(501).json({
+            success: false,
+        });
     }
-}, videoUploaded);
+});
+
+type nextType = (params: Prisma.MiddlewareParams) => Promise<unknown>;
+
+DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
+    if (params.model === 'Video' && params.action === 'create') {
+    // Logic only runs for delete action and Post model
+        await DB.prisma.user.update({
+            where: {
+                userId: params.args.data.uploader,
+            },
+            data: {
+                uploadVideoCnt: { increment: 1 },
+            },
+        });
+    }
+    return next(params);
+});
 
 export default router;

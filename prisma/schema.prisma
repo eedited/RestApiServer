@@ -40,7 +40,7 @@ model VideoLiker {
 
 model Video {
     uploader        String       @db.VarChar(50)
-    id              String       @default(uuid())
+    id              String       @unique @default(uuid())
     title           String       @db.VarChar(50)
     discription     String       @db.Text
     url             String       @db.VarChar(100)
@@ -56,7 +56,7 @@ model Video {
 }
 
 model Chatroom {
-    id              Int               @id @default(autoincrement())
+    id              String            @id @default(uuid())
     participantCnt  Int               @default(0)
     createdAt       DateTime          @default(now())
     updatedAt       DateTime          @updatedAt
@@ -66,7 +66,7 @@ model Chatroom {
 model ChatParticipant {
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
-    chatroomId    Int
+    chatroomId    String
     userId        String   @db.VarChar(50)
     Chatroom      Chatroom @relation(fields: [chatroomId], references: [id])
     User          User     @relation(fields: [userId], references: [userId])
@@ -77,9 +77,9 @@ model ChatParticipant {
 }
 
 model Chat {
-    chatroomId    Int
+    chatroomId    String
     from          String          @db.VarChar(50)
-    id            String          @default(uuid())
+    id            String          @unique @default(uuid())
     message       String          @db.Text
     createdAt     DateTime        @default(now())
     updatedAt     DateTime        @updatedAt

@@ -13,7 +13,7 @@ router.post('/list', async (req: Request, res: Response) => {
                 userId,
             },
         });
-        const chatroomList: number[] = result.map((value: ChatParticipant) => value.chatroomId);
+        const chatroomList: string[] = result.map((value: ChatParticipant) => value.chatroomId);
         return res.status(200).json({
             success: true,
             chatroomList,
@@ -29,16 +29,10 @@ router.post('/list', async (req: Request, res: Response) => {
 router.get('/:chatroomId', async (req: Request, res: Response) => {
     const { chatroomId }: typeof req.params = req.params;
     try {
-        // eslint-disable-next-line no-restricted-globals
-        if (isNaN(Number(chatroomId))) {
-            return res.status(501).json({
-                success: false,
-                error: 'inaccurate chatroomId format',
-            });
-        }
+        // check valid chatroomId
         const find: Chatroom | null = await DB.prisma.chatroom.findUnique({
             where: {
-                id: Number(chatroomId),
+                id: chatroomId,
             },
         });
         if (!find) {
@@ -47,9 +41,18 @@ router.get('/:chatroomId', async (req: Request, res: Response) => {
                 error: 'not exists chatroom',
             });
         }
+
+        // check user is participant
+        const user: ChatParticipant[] = await DB.prisma.chatParticipant.findMany({
+            where: {
+                chatroomId,
+            },
+        });
+
+        // get chatting logs
         const result: Chat[] = await DB.prisma.chat.findMany({
             where: {
-                chatroomId: Number(chatroomId),
+                chatroomId,
             },
         });
         const log: string[] = result.map((value: Chat) => value.message);

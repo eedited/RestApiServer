@@ -2,6 +2,8 @@ import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
 import { User, Prisma } from '@prisma/client';
+import nodemailer from 'nodemailer';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import DB from '../db';
 import { isLoggedIn, isNotLoggedIn, checkPassword } from '../middlewares/auth';
 
@@ -175,4 +177,43 @@ router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, 
     }
 });
 
+router.post('/mail', isLoggedIn, async (req: Request, res: Response) => {
+    try {
+        const { email }: User = req.body;
+        const randomNum: string = Math.random().toString().slice(2);
+        const transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
+            auth: {
+                user: process.env.NODEMAILER_USER,
+                pass: process.env.NODEMAILER_PASS,
+            },
+        });
+        const mailOptions: SMTPTransport.SentMessageInfo = await transporter.sendMail({
+            from: 'test',
+            to: email,
+            subject: '회원가입을 위한 인증번호를 입력해주세요.',
+            html: `<b>Hello world?${randomNum}</b>`,
+        });
+        transporter.sendMail(mailOptions, (error: Error | null) => {
+            if (error) {
+                console.log(error);
+            }
+            res.send(randomNum);
+            transporter.close();
+        });
+        return res.status(200).json({
+            success: true,
+            randomNum,
+        });
+    }
+    catch (err) {
+        return res.status(501).json({
+            success: false,
+            err,
+        });
+    }
+});
 export default router;

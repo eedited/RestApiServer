@@ -19,6 +19,7 @@ dotenv.config();
 import indexRouter from './routers';
 import authRouter from './routers/auth';
 import videoRouter from './routers/video';
+import chatRouter from './routers/chat';
 
 /**
  * Express.Application Set
@@ -73,6 +74,7 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/video', videoRouter);
+app.use('/chat', chatRouter);
 
 /**
  * Error

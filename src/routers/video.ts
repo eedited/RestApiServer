@@ -2,7 +2,6 @@ import { Request, Response, NextFunction, Router } from 'express';
 import { User, Video } from '@prisma/client';
 import { Prisma } from '.prisma/client';
 import DB from '../db';
-import { videoUploaded } from '../middlewares/video';
 
 const router: Router = Router();
 

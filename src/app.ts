@@ -4,22 +4,21 @@ import session, { MemoryStore } from 'express-session';
 import passport from 'passport';
 import redis from 'redis';
 import connectRedis from 'connect-redis';
-import dotenv from 'dotenv';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import hpp from 'hpp';
 
+import checkEnv from './checkEnv';
 import passportConfig from './passport';
-
-dotenv.config();
 
 /**
  * Routers
  */
 import indexRouter from './routers';
 import authRouter from './routers/auth';
-import videoRouter from './routers/video';
-import chatRouter from './routers/chat';
+
+// Check Which each env Variable is set or not
+checkEnv();
 
 /**
  * Express.Application Set
@@ -73,8 +72,6 @@ app.use(passport.session());
  */
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
-app.use('/video', videoRouter);
-app.use('/chat', chatRouter);
 
 /**
  * Error

@@ -1,38 +1,26 @@
-import { Request, Response, NextFunction, Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-import { User, Prisma } from '@prisma/client';
-import nodemailer from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { User } from '@prisma/client';
 import DB from '../db';
-import { isLoggedIn, isNotLoggedIn, checkPassword } from '../middlewares/auth';
+import { isLoggedIn, isNotLoggedIn } from '../middlewares/auth';
 
 const router: Router = Router();
 
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     const { userId, password, email, birthday, nickname }: User = req.body;
+
     try {
-        const user1: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
-        if (user1) {
-            return res.status(401).json({
-                success: false,
-                info: 'Same userId already exists',
+        const userIdPromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { userId } });
+        const emailPromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { email } });
+        const nicknamePromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { nickname } });
+        const users: (User | null)[] = await Promise.all([userIdPromise, emailPromise, nicknamePromise]);
+        if (users.filter((user: User | null) => user === null).length !== 0) {
+            return res.status(404).json({
+                info: '/auth/signup - DB : No such a User of (userId, email, nickname)',
             });
         }
-        const user2: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
-        if (user2) {
-            return res.status(402).json({
-                success: false,
-                info: 'The email is already used for another ID',
-            });
-        }
-        const user3: (User | null) = await DB.prisma.user.findUnique({ where: { nickname } });
-        if (user3) {
-            return res.status(402).json({
-                success: false,
-                info: 'Same nickname already exists',
-            });
-        }
+
         const salt: number = Number(process.env.BCRYPT_SALT);
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
         await DB.prisma.user.create({
@@ -44,13 +32,12 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
                 nickname,
             },
         });
-        return res.status(200).json({
-            success: true,
-        });
+
+        return res.status(200);
     }
     catch (err) {
-        return res.status(501).json({
-            success: false,
+        return res.status(500).json({
+            info: '/auth/signup - DB Error : Checks DB Connection or CRUD',
         });
     }
 });
@@ -58,162 +45,33 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
 router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('local', (authErr: Error | null, user: Express.User | null) => {
         if (authErr) {
-            return res.status(501).json({
-                success: false,
+            return res.status(500).json({
+                info: '/auth/login - Passport Error',
             });
         }
         if (!user) {
             return res.status(401).json({
-                success: false,
-                info: 'Unregistered user or incorrect password',
+                info: '/auth/login - Unregistered user or incorrect password',
             });
         }
 
         return req.login(user, (err: Error) => {
             if (err) {
-                res.status(502).json({
+                return res.status(500).json({
                     success: false,
+                    err: 500,
+                    info: '/auth/login - Passport Error',
                 });
             }
-            return res.status(200).json({
-                success: true,
-            });
+            return res.status(200);
         });
     })(req, res, next);
 });
 
-router.get('/logout', isLoggedIn, (req: Request, res: Response) => {
+router.get('/logout', isLoggedIn, async (req: Request, res: Response) => {
     req.logOut();
-    req.session.destroy((err: Error | null) => {
-        if (err) {
-            res.status(501).json({
-                success: false,
-            });
-        }
-    });
-    return res.status(200).json({
-        success: true,
-    });
+    req.session.destroy(() => {});
+    return res.status(200);
 });
 
-router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
-    const { email }: User = req.body;
-    try {
-        const user: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
-        if (user) {
-            return res.status(200).json({
-                id: user.userId,
-            });
-        }
-        return res.status(400).json({
-            exists: false,
-        });
-    }
-    catch (err) {
-        return res.status(501).json({
-            success: false,
-        });
-    }
-});
-
-router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response) => {
-    const { userId, email }: User = req.body;
-    try {
-        const user: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
-        if (user && user.email === email) {
-            const salt: number = Number(process.env.BCRYPT_SALT);
-            const changedPassword: string = Math.random().toString(36).slice(2);
-            const hashedPassword: string = await bcrypt.hash(changedPassword, salt);
-            await DB.prisma.user.update({
-                where: {
-                    userId,
-                },
-                data: {
-                    password: hashedPassword,
-                },
-            });
-            return res.status(200).json({
-                password: changedPassword,
-            });
-        }
-        if (user) {
-            return res.status(400).json({
-                email: 'incorrect',
-            });
-        }
-        return res.status(400).json({
-            exists: false,
-        });
-    }
-    catch (err) {
-        return res.status(501).json({
-            success: false,
-        });
-    }
-});
-
-router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, res: Response) => {
-    const { userId }: User = req.body;
-    const { newpassword }: {newpassword: string} = req.body;
-    try {
-        const salt: number = Number(process.env.BCRYPT_SALT);
-        const hashedPassword: string = await bcrypt.hash(newpassword.toString(), salt);
-        await DB.prisma.user.update({
-            where: {
-                userId,
-            },
-            data: {
-                password: hashedPassword,
-            },
-        });
-        return res.status(200).json({
-            password: 'changedPassword success',
-        });
-    }
-    catch (err) {
-        return res.status(501).json({
-            success: false,
-        });
-    }
-});
-
-router.post('/mail', isLoggedIn, async (req: Request, res: Response) => {
-    try {
-        const { email }: User = req.body;
-        const randomNum: string = Math.random().toString().slice(2);
-        const transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> = nodemailer.createTransport({
-            service: 'gmail',
-            host: 'smtp.gmail.com',
-            port: 587,
-            secure: false,
-            auth: {
-                user: process.env.NODEMAILER_USER,
-                pass: process.env.NODEMAILER_PASS,
-            },
-        });
-        const mailOptions: SMTPTransport.SentMessageInfo = await transporter.sendMail({
-            from: 'test',
-            to: email,
-            subject: '회원가입을 위한 인증번호를 입력해주세요.',
-            html: `<b>Hello world?${randomNum}</b>`,
-        });
-        transporter.sendMail(mailOptions, (error: Error | null) => {
-            if (error) {
-                console.log(error);
-            }
-            res.send(randomNum);
-            transporter.close();
-        });
-        return res.status(200).json({
-            success: true,
-            randomNum,
-        });
-    }
-    catch (err) {
-        return res.status(501).json({
-            success: false,
-            err,
-        });
-    }
-});
 export default router;

@@ -15,7 +15,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         const emailPromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { email } });
         const nicknamePromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { nickname } });
         const users: (User | null)[] = await Promise.all([userIdPromise, emailPromise, nicknamePromise]);
-        if (users.filter((user: User | null) => user === null).length !== 0) {
+        if (users.filter((user: User | null) => user !== null).length > 0) {
             return res.status(404).json({
                 info: '/auth/signup - DB : No such a User of (userId, email, nickname)',
             });

@@ -1,6 +1,6 @@
 {
     "name": "eedited_rest_api_server",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "SW Maestro 12th Team.eedited's Rest API Server",
     "main": "index.js",
     "engines": {
@@ -53,6 +53,7 @@
         "morgan": "1.10.0",
         "multer": "1.4.2",
         "multer-s3": "2.9.0",
+        "nodemailer": "6.6.3",
         "passport": "0.4.1",
         "passport-local": "1.0.0",
         "pm2": "5.1.0",
@@ -70,6 +71,7 @@
         "@types/multer": "1.4.7",
         "@types/multer-s3": "2.7.10",
         "@types/node": "16.3.2",
+        "@types/nodemailer": "6.4.4",
         "@types/passport": "1.0.7",
         "@types/passport-local": "1.0.34",
         "@types/redis": "2.8.31",

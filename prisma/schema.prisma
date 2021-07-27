@@ -8,9 +8,16 @@ datasource db {
 }
 
 model User {
-    userId   String    @id @db.VarChar(50)
-    password String    @db.VarChar(100)
-    email    String    @unique @db.VarChar(100)
-    nickname String    @unique @db.VarChar(10)
-    birthday DateTime? @db.Date
+    userId         String    @id @db.VarChar(50)
+    password       String    @db.VarChar(100)
+    birthday       DateTime? @db.Date
+    nickname       String    @unique @db.VarChar(10)
+    email          String    @unique @db.VarChar(100)
+    followerCnt    Int       @default(0)
+    uploadVideoCnt Int       @default(0)
+    proTag         Boolean   @default(false)
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+
+    @@index([email], name: "email")
 }

@@ -1,0 +1,15 @@
+.git
+.vscode
+
+dist
+node_modules
+prisma/migrations
+prisma/push.js
+
+.env
+.eslintignore
+.eslintrc
+.gitignore
+README.md
+
+npm-debug.log

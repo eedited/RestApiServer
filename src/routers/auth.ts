@@ -33,7 +33,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
             },
         });
 
-        return res.status(200);
+        return res.status(200).json({});
     }
     catch (err) {
         return res.status(500).json({
@@ -63,7 +63,7 @@ router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFun
                     info: '/auth/login - Passport Error',
                 });
             }
-            return res.status(200);
+            return res.status(200).json({});
         });
     })(req, res, next);
 });
@@ -71,7 +71,7 @@ router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFun
 router.get('/logout', isLoggedIn, async (req: Request, res: Response) => {
     req.logOut();
     req.session.destroy(() => {});
-    return res.status(200);
+    return res.status(200).json({});
 });
 
 export default router;

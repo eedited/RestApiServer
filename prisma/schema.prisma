@@ -8,16 +8,52 @@ datasource db {
 }
 
 model User {
-    userId         String    @id @db.VarChar(50)
-    password       String    @db.VarChar(100)
-    birthday       DateTime? @db.Date
-    nickname       String    @unique @db.VarChar(10)
-    email          String    @unique @db.VarChar(100)
-    followerCnt    Int       @default(0)
-    uploadVideoCnt Int       @default(0)
-    proTag         Boolean   @default(false)
-    createdAt      DateTime  @default(now())
-    updatedAt      DateTime  @updatedAt
+    userId         String       @id @db.VarChar(50)
+    password       String       @db.VarChar(100)
+    birthday       DateTime?    @db.Date
+    nickname       String       @unique @db.VarChar(10)
+    email          String       @db.VarChar(100)
+    followerCnt    Int          @default(0)
+    uploadVideoCnt Int          @default(0)
+    proTag         Boolean      @default(false)
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+    deleted        DateTime?
+    VideoLiker     VideoLiker[]
+    Video          Video[]
 
     @@index([email], name: "email")
+}
+
+model VideoLiker {
+    liker           String    @db.VarChar(50)
+    videoId         String
+    uploader        String    @db.VarChar(50)
+    createdAt       DateTime  @default(now())
+    updatedAt       DateTime  @updatedAt
+    deleted         DateTime?
+    User            User      @relation(fields: [liker], references: [userId])
+    WhoVideoUpload  Video     @relation("WhoVideoUpload", fields: [uploader], references: [uploader])
+    WhatVideoUpload Video     @relation("WhatVideoUpload", fields: [videoId], references: [id])
+
+    @@id([liker, uploader, videoId])
+}
+
+model Video {
+    id              String       @unique @default(uuid())
+    uploader        String       @db.VarChar(50)
+    title           String       @db.VarChar(50)
+    discription     String       @db.Text
+    url             String       @db.VarChar(200)
+    thumbnail       String       @db.VarChar(200)
+    likeCnt         Int          @default(0)
+    viewCnt         Int          @default(0)
+    createdAt       DateTime     @default(now())
+    updatedAt       DateTime     @updatedAt
+    deleted         DateTime?
+    User            User         @relation(fields: [uploader], references: [userId])
+    WhoVideoUpload  VideoLiker[] @relation("WhoVideoUpload")
+    WhatVideoUpload VideoLiker[] @relation("WhatVideoUpload")
+
+    @@id([uploader, id])
 }

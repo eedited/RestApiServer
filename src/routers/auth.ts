@@ -34,13 +34,13 @@ async function sendEmail(email: string, subject: string, Contents: string): Prom
     });
 }
 
-router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/signup', isNotLoggedIn, async (req: Request, res: Response) => {
     const { userId, password, email, birthday, nickname }: User = req.body;
 
     try {
-        const userIdPromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { userId } });
-        const emailPromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { email } });
-        const nicknamePromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { nickname } });
+        const userIdPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { userId } });
+        const emailPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { email, deleted: null } });
+        const nicknamePromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { nickname } });
         const users: (User | null)[] = await Promise.all([userIdPromise, emailPromise, nicknamePromise]);
         if (users.filter((user: User | null) => user !== null).length > 0) {
             return res.status(404).json({
@@ -59,7 +59,6 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
                 nickname,
             },
         });
-
         return res.status(200).json({});
     }
     catch (err) {
@@ -68,6 +67,29 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         });
     }
 });
+
+router.post('/withdrawal', isLoggedIn, checkPassword, async (req: Request, res: Response) => {
+    try {
+        const user: Express.User = req.user as Express.User;
+        const finduser = await DB.prisma.user.findFirst({
+            where: {
+                userId: user.userId,
+                deleted: null,
+            }
+        })
+        await DB.prisma.user.delete({
+            where: {
+                userId: user.userId,
+            }
+        })
+        return res.status(200).json({});
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/withdrawal router error',
+        });
+    }
+})
 
 router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('local', (authErr: Error | null, user: Express.User | null) => {
@@ -104,7 +126,7 @@ router.get('/logout', isLoggedIn, async (req: Request, res: Response) => {
 router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
     const { email }: User = req.body;
     try {
-        const user: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
+        const user: (User | null) = await DB.prisma.user.findFirst({ where: { email, deleted: null } });
         if (user) {
             sendEmail(email, '아이디 찾기', user.userId);
             return res.status(200).json({});
@@ -123,7 +145,7 @@ router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
 router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response) => {
     const { userId, email }: User = req.body;
     try {
-        const user: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
+        const user: (User | null) = await DB.prisma.user.findFirst({ where: { userId, deleted: null } });
         if (user && user.email === email) {
             const salt: number = Number(process.env.BCRYPT_SALT);
             const changedPassword: string = Math.random().toString(36).slice(2);
@@ -180,7 +202,7 @@ router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, 
     }
 });
 
-router.post('/mail', isLoggedIn, async (req: Request, res: Response) => {
+router.post('/mail', isNotLoggedIn, async (req: Request, res: Response) => {
     try {
         const { email }: User = req.body;
         const randomNum: string = Math.random().toString().slice(2, 7);

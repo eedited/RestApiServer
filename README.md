@@ -29,6 +29,7 @@ Also, you must make .env file in root of your project directory.
 > touch .env
 
 Some env variables have to be included in .env file, o.w. server will emit errors which env variable have to be set when it runs.
+
 --------------------------------------------------------------------
 
 <a id="start"></a>
@@ -116,30 +117,6 @@ npm run dev:dist
 | Request      | {<br>&nbsp;&nbsp;&nbsp;&nbsp;userId,<br>&nbsp;&nbsp;&nbsp;&nbsp;email<br>} | 
 | Response     | status code & json { info }<br>&nbsp;&nbsp;&nbsp;&nbsp;- 200<br>&nbsp;&nbsp;&nbsp;&nbsp;- 401, info<br>&nbsp;&nbsp;&nbsp;&nbsp;- 500, info |
 
-| API          | Find Password                                                                         |
-|--------------|---------------------------------------------------------------------------------------|
-| Description  | Find PW of the account that matches the ID                                            |
-| Domain       | https://api.eedited.com:3000                                                          |
-| Path         | /auth/find/password                                                                   |
-| Method       | POST                                                                                  |
-| HTTP         | 1.1                                                                                   |
-| Header       | -                                                                                     |
-| Content-Type | application/json                                                                      |
-| Request      | {<br>&nbsp;&nbsp;&nbsp;&nbsp;userId,<br>&nbsp;&nbsp;&nbsp;&nbsp;email<br>} | 
-| Response     | status code & json { info }<br>&nbsp;&nbsp;&nbsp;&nbsp;- 200<br>&nbsp;&nbsp;&nbsp;&nbsp;- 500, info |
-
-| API          | Find Password                                                                         |
-|--------------|---------------------------------------------------------------------------------------|
-| Description  | Find PW of the account that matches the ID                                            |
-| Domain       | https://api.eedited.com:3000                                                          |
-| Path         | /auth/find/password                                                                   |
-| Method       | POST                                                                                  |
-| HTTP         | 1.1                                                                                   |
-| Header       | -                                                                                     |
-| Content-Type | application/json                                                                      |
-| Request      | {<br>&nbsp;&nbsp;&nbsp;&nbsp;userId,<br>&nbsp;&nbsp;&nbsp;&nbsp;email<br>} | 
-| Response     | status code & json { info }<br>&nbsp;&nbsp;&nbsp;&nbsp;- 200<br>&nbsp;&nbsp;&nbsp;&nbsp;- 500, info |
-
 
 --------------------------------------------------------------------
 
@@ -168,14 +145,9 @@ npm run dev:dist
 This work was supported by the Institute of Information & Communications Technology Planning & Evaluation(IITP) grant funded
 by the Ministry of Science and ICT(MSIT) (IITP-0000-SW Maestro training course).
 
----
-
-
+--------------------------------------------------------------------
 
 <br>
-<br>
-<br>
-
 <div align="center">
     <h4>Copyright © 2021. (Team. eedited) All rights reserved.</h4>
 </div>

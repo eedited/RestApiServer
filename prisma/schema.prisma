@@ -12,13 +12,13 @@ model User {
     password       String       @db.VarChar(100)
     birthday       DateTime?    @db.Date
     nickname       String       @unique @db.VarChar(10)
-    email          String       @db.VarChar(100)
+    email          String       @unique @db.VarChar(100)
     followerCnt    Int          @default(0)
     uploadVideoCnt Int          @default(0)
     proTag         Boolean      @default(false)
     createdAt      DateTime     @default(now())
     updatedAt      DateTime     @updatedAt
-    deleted        DateTime?
+    deletedAt      DateTime?
     VideoLiker     VideoLiker[]
     Video          Video[]
 
@@ -31,7 +31,7 @@ model VideoLiker {
     uploader        String    @db.VarChar(50)
     createdAt       DateTime  @default(now())
     updatedAt       DateTime  @updatedAt
-    deleted         DateTime?
+    deletedAt       DateTime?
     User            User      @relation(fields: [liker], references: [userId])
     WhoVideoUpload  Video     @relation("WhoVideoUpload", fields: [uploader], references: [uploader])
     WhatVideoUpload Video     @relation("WhatVideoUpload", fields: [videoId], references: [id])
@@ -50,7 +50,7 @@ model Video {
     viewCnt         Int          @default(0)
     createdAt       DateTime     @default(now())
     updatedAt       DateTime     @updatedAt
-    deleted         DateTime?
+    deletedAt       DateTime?
     User            User         @relation(fields: [uploader], references: [userId])
     WhoVideoUpload  VideoLiker[] @relation("WhoVideoUpload")
     WhatVideoUpload VideoLiker[] @relation("WhatVideoUpload")

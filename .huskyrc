@@ -1,6 +1,5 @@
 {
     "hooks": {
-        "pre-commit": "echo 'PreCommit : Run lint-staged...' && lint-staged",
-        "pre-push": "npm test"
+        "pre-commit": "echo 'PreCommit : Run lint-staged...' && lint-staged"
     }
 }

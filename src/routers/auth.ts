@@ -2,9 +2,9 @@ import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
 import { User } from '@prisma/client';
+import { isLoggedIn, isNotLoggedIn, checkPassword } from '../middlewares/auth';
 import sendEmail from '../services/sendEmail';
 import DB from '../db';
-import { isLoggedIn, isNotLoggedIn, checkPassword } from '../middlewares/auth';
 
 const router: Router = Router();
 

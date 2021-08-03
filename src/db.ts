@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import { Prisma } from '.prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 export default class DB {
     public static prisma: PrismaClient = new PrismaClient()

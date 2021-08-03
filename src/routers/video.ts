@@ -4,18 +4,23 @@ import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
 const router: Router = Router();
+const take: number = 20;
 
-router.get('/:pageStr', async (req: Request, res: Response) => {
-    const take: number = 20;
-    const { pageStr }: typeof req.params = req.params;
+router.get('/', async (req: Request, res: Response) => {
+    const pageStr: string = req.query.page as string;
     try {
-        const pageNum: number = pageStr ? 0 : Number(pageStr);
+        const pageNum: number = Number(pageStr);
+        if (Number.isNaN(pageNum)) {
+            return res.status(400).json({
+                info: `/video/${pageStr} not valid input`,
+            });
+        }
         const videos: Video[] = await DB.prisma.video.findMany({
             where: {
                 deletedAt: null,
             },
-            take,
             skip: pageNum * take,
+            take,
         });
         return res.status(200).json({
             videos,
@@ -29,7 +34,14 @@ router.get('/:pageStr', async (req: Request, res: Response) => {
 });
 
 router.get('/sort/latest', async (req: Request, res: Response) => {
+    const pageStr: string = req.query.page as string;
     try {
+        const pageNum: number = Number(pageStr);
+        if (Number.isNaN(pageNum)) {
+            return res.status(400).json({
+                info: `/video/${pageStr} not valid input`,
+            });
+        }
         const videos: Video[] = await DB.prisma.video.findMany({
             where: {
                 deletedAt: null,
@@ -37,6 +49,8 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
             orderBy: {
                 createdAt: 'desc',
             },
+            skip: pageNum * take,
+            take,
         });
         return res.status(200).json({
             videos,
@@ -50,7 +64,14 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
 });
 
 router.get('/sort/thumbup', async (req: Request, res: Response) => {
+    const pageStr: string = req.query.page as string;
     try {
+        const pageNum: number = Number(pageStr);
+        if (Number.isNaN(pageNum)) {
+            return res.status(400).json({
+                info: `/video/${pageStr} not valid input`,
+            });
+        }
         const videos: Video[] = await DB.prisma.video.findMany({
             where: {
                 deletedAt: null,
@@ -58,6 +79,8 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
             orderBy: {
                 likeCnt: 'desc',
             },
+            skip: pageNum * take,
+            take,
         });
         return res.status(200).json({
             videos,
@@ -236,12 +259,21 @@ router.get('/:videoId/delete', isLoggedIn, async (req: Request, res: Response) =
 
 router.get('/:userId/list', async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
+    const pageStr: string = req.query.page as string;
     try {
+        const pageNum: number = Number(pageStr);
+        if (Number.isNaN(pageNum)) {
+            return res.status(400).json({
+                info: `/video/${pageStr} not valid input`,
+            });
+        }
         const videos: Video[] = await DB.prisma.video.findMany({
             where: {
                 uploader: userId,
                 deletedAt: null,
             },
+            skip: pageNum * take,
+            take,
         });
         return res.status(200).json({
             videos,

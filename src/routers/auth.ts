@@ -1,46 +1,23 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-import { User, Prisma } from '@prisma/client';
-import nodemailer from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { User } from '@prisma/client';
+import sendEmail from '../services/sendEmail';
 import DB from '../db';
 import { isLoggedIn, isNotLoggedIn, checkPassword } from '../middlewares/auth';
 
 const router: Router = Router();
 
-async function sendEmail(email: string, subject: string, Contents: string): Promise<void> {
-    const transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.NODEMAILER_USER,
-            pass: process.env.NODEMAILER_PASS,
-        },
-    });
-    const mailOptions: SMTPTransport.SentMessageInfo = await transporter.sendMail({
-        from: 'test',
-        to: email,
-        bcc: [],
-        subject,
-        html: `<b>Hello world?${Contents}</b>`,
-    });
-    transporter.sendMail(mailOptions, (error: Error | null) => {
-        if (error) {
-            console.log(error);
-        }
-        transporter.close();
-    });
-}
-
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response) => {
     const { userId, password, email, birthday, nickname }: User = req.body;
 
     try {
-        const userIdPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { userId } });
-        const emailPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { email, deleted: null } });
-        const nicknamePromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { nickname } });
+        const userIdPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { userId,
+            deletedAt: null } });
+        const emailPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { email,
+            deletedAt: null } });
+        const nicknamePromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { nickname,
+            deletedAt: null } });
         const users: (User | null)[] = await Promise.all([userIdPromise, emailPromise, nicknamePromise]);
         if (users.filter((user: User | null) => user !== null).length > 0) {
             return res.status(404).json({
@@ -59,6 +36,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response) => {
                 nickname,
             },
         });
+
         return res.status(200).json({});
     }
     catch (err) {
@@ -68,28 +46,26 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response) => {
     }
 });
 
-router.post('/withdrawal', isLoggedIn, checkPassword, async (req: Request, res: Response) => {
+router.get('/signup/email', isNotLoggedIn, async (req: Request, res: Response) => {
     try {
-        const user: Express.User = req.user as Express.User;
-        const finduser = await DB.prisma.user.findFirst({
-            where: {
-                userId: user.userId,
-                deleted: null,
-            }
-        })
-        await DB.prisma.user.delete({
-            where: {
-                userId: user.userId,
-            }
-        })
-        return res.status(200).json({});
+        const email: string = req.query.email as string;
+        if (email === undefined || email === '') {
+            return res.status(400).json({
+                info: '/auth/signup/email - querystring have to contain \'email\'',
+            });
+        }
+        const randomNum: string = Math.random().toString().slice(2, 7);
+        await sendEmail(email, '회원가입을 위한 인증번호를 입력해주세요', randomNum);
+        return res.status(200).json({
+            randomNum,
+        });
     }
     catch (err) {
         return res.status(500).json({
-            info: '/withdrawal router error',
+            info: '/auth/mail - server err',
         });
     }
-})
+});
 
 router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('local', (authErr: Error | null, user: Express.User | null) => {
@@ -126,9 +102,10 @@ router.get('/logout', isLoggedIn, async (req: Request, res: Response) => {
 router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
     const { email }: User = req.body;
     try {
-        const user: (User | null) = await DB.prisma.user.findFirst({ where: { email, deleted: null } });
+        const user: (User | null) = await DB.prisma.user.findFirst({ where: { email,
+            deletedAt: null } });
         if (user) {
-            sendEmail(email, '아이디 찾기', user.userId);
+            await sendEmail(email, '아이디 찾기', user.userId);
             return res.status(200).json({});
         }
         return res.status(401).json({
@@ -145,7 +122,8 @@ router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
 router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response) => {
     const { userId, email }: User = req.body;
     try {
-        const user: (User | null) = await DB.prisma.user.findFirst({ where: { userId, deleted: null } });
+        const user: (User | null) = await DB.prisma.user.findFirst({ where: { userId,
+            deletedAt: null } });
         if (user && user.email === email) {
             const salt: number = Number(process.env.BCRYPT_SALT);
             const changedPassword: string = Math.random().toString(36).slice(2);
@@ -158,7 +136,7 @@ router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response)
                     password: hashedPassword,
                 },
             });
-            sendEmail(email, '비밀번호 초기화', changedPassword);
+            await sendEmail(email, '비밀번호 초기화', changedPassword);
             return res.status(200).json({
                 password: changedPassword,
             });
@@ -198,23 +176,6 @@ router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, 
     catch (err) {
         return res.status(500).json({
             info: '/auth/change/password server err',
-        });
-    }
-});
-
-router.post('/mail', isNotLoggedIn, async (req: Request, res: Response) => {
-    try {
-        const { email }: User = req.body;
-        const randomNum: string = Math.random().toString().slice(2, 7);
-        console.log(1);
-        sendEmail(email, '회원가입을 위한 인증번호를 입력해주세요', randomNum);
-        return res.status(200).json({
-            randomNum,
-        });
-    }
-    catch (err) {
-        return res.status(500).json({
-            info: '/auth/mail server err',
         });
     }
 });

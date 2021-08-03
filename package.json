@@ -1,6 +1,6 @@
 {
     "name": "eedited_rest_api_server",
-    "version": "0.2.0",
+    "version": "0.3.1",
     "description": "SW Maestro 12th Team.eedited's Rest API Server",
     "main": "index.js",
     "engines": {
@@ -21,7 +21,7 @@
         "dev": "cross-env NODE_ENV=development ./node_modules/.bin/tsc-watch --noEmit --onSuccess \"ts-node --files ./src\"",
         "dev:src": "npm run dev",
         "dev:dist": "cross-env NODE_ENV=development ./node_modules/.bin/tsc-watch --onSuccess \"node ./dist\"",
-        "dev:docker": "npm run db:gen && npm run build:force && cross-env NODE_ENV=development ./node_modules/.bin/pm2-docker ./dist -i -0",
+        "dev:docker": "cross-env NODE_ENV=development ./node_modules/.bin/pm2-docker ./dist -i -0",
         "db:push": "cross-env NODE_ENV=development node ./prisma/push",
         "db:push-prod": "cross-env NODE_ENV=production node ./prisma/push",
         "db:push-dev": "cross-env NODE_ENV=development node ./prisma/push",
@@ -33,7 +33,9 @@
         "db:create": "npm run db:push && npm run db:gen",
         "db:reverse": "npm run db:introspect && npm run db:gen",
         "test": "./node_modules/.bin/jest",
-        "test:cover": "./node_modules/.bin/jest --coverage"
+        "test:cover": "./node_modules/.bin/jest --coverage",
+        "lint": "./node_modules/.bin/eslint . --ext .ts",
+        "lint:staged": "./node_modules/.bin/lint-staged"
     },
     "author": "eedited",
     "license": "ISC",
@@ -81,7 +83,9 @@
         "eslint": "7.30.0",
         "eslint-config-airbnb-base": "14.2.1",
         "eslint-plugin-import": "2.23.4",
+        "husky": "4.3.8",
         "jest": "27.0.6",
+        "lint-staged": "11.1.1",
         "prisma": "2.27.0",
         "ts-node": "10.1.0",
         "tsc-watch": "4.4.0",

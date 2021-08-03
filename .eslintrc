@@ -30,7 +30,7 @@
         "plugin:@typescript-eslint/recommended"
     ],
     "rules": {
-        "no-console": "off",
+        "no-console": "warn",
         "indent": "off",
         "@typescript-eslint/indent": [
             "error",

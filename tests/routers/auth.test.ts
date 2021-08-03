@@ -19,6 +19,6 @@ describe('Router /auth', () => {
     test('(F) Get /signup', async () => {
         await request(app)
             .get('/signup')
-            .expect(4044);
+            .expect(404);
     });
 });

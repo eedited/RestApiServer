@@ -1,20 +1,28 @@
 .git
 .vscode
+coverage
 
 node_modules
 prisma
 public
 src
+tests
 
 .env
+
 .eslintignore
 .eslintrc
+
 .gitignore
 .gitlab-ci.yml
+
 .huskyrc
 .lintstagedrc
 
+jest.config.js
+
 README.md
 tsconfig.json
+tsconfig.src.json
 
 npm-debug.log

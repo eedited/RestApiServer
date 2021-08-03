@@ -2,4 +2,3 @@
 /dist
 /prisma
 /checkEnv.js
-/**/*.js

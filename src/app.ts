@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import session, { MemoryStore } from 'express-session';

@@ -12,7 +12,8 @@
         "jest": true
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "import"
     ],
     "settings": {
         "import/resolver": {
@@ -21,16 +22,20 @@
                     ".js",
                     ".ts"
                 ]
-            }
+            },
+            "typescript": {}
         }
     },
     "extends": [
         "airbnb-base",
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript"
     ],
     "rules": {
-        "no-console": "off",
+        "no-console": "warn",
         "indent": "off",
         "@typescript-eslint/indent": [
             "error",

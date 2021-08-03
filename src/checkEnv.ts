@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import dotenv from 'dotenv';
 import chalk from 'chalk';
 
@@ -10,6 +11,7 @@ const envList: string[] = [
     'REDIS_URL', 'REDIS_PASSWORD',
     'BCRYPT_SALT',
     'COOKIE_SECRET',
+    'NODEMAILER_USER', 'NODEMAILER_PASS',
 ];
 
 export default function checkEnv(): void {

@@ -1,38 +1,12 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-import { User, Prisma } from '@prisma/client';
-import nodemailer from 'nodemailer';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import DB from '../db';
+import { User } from '@prisma/client';
 import { isLoggedIn, isNotLoggedIn, checkPassword } from '../middlewares/auth';
+import sendEmail from '../services/sendEmail';
+import DB from '../db';
 
 const router: Router = Router();
-
-async function sendEmail(email: string, subject: string, Contents: string): Promise<void> {
-    const transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.NODEMAILER_USER,
-            pass: process.env.NODEMAILER_PASS,
-        },
-    });
-    const mailOptions: SMTPTransport.SentMessageInfo = await transporter.sendMail({
-        from: 'test',
-        to: email,
-        bcc: [],
-        subject,
-        html: `<b>Hello world?${Contents}</b>`,
-    });
-    transporter.sendMail(mailOptions, (error: Error | null) => {
-        if (error) {
-            console.log(error);
-        }
-        transporter.close();
-    });
-}
 
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     const { userId, password, email, birthday, nickname }: User = req.body;
@@ -65,6 +39,27 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
     catch (err) {
         return res.status(500).json({
             info: '/auth/signup - DB Error : Checks DB Connection or CRUD',
+        });
+    }
+});
+
+router.get('/signup/email', isNotLoggedIn, async (req: Request, res: Response) => {
+    try {
+        const email: string = req.query.email as string;
+        if (email === undefined || email === '') {
+            return res.status(400).json({
+                info: '/auth/signup/email - querystring have to contain \'email\'',
+            });
+        }
+        const randomNum: string = Math.random().toString().slice(2, 7);
+        await sendEmail(email, '회원가입을 위한 인증번호를 입력해주세요', randomNum);
+        return res.status(200).json({
+            randomNum,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/auth/mail - server err',
         });
     }
 });
@@ -106,7 +101,7 @@ router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
     try {
         const user: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
         if (user) {
-            sendEmail(email, '아이디 찾기', user.userId);
+            await sendEmail(email, '아이디 찾기', user.userId);
             return res.status(200).json({});
         }
         return res.status(401).json({
@@ -136,7 +131,7 @@ router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response)
                     password: hashedPassword,
                 },
             });
-            sendEmail(email, '비밀번호 초기화', changedPassword);
+            await sendEmail(email, '비밀번호 초기화', changedPassword);
             return res.status(200).json({
                 password: changedPassword,
             });
@@ -176,23 +171,6 @@ router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, 
     catch (err) {
         return res.status(500).json({
             info: '/auth/change/password server err',
-        });
-    }
-});
-
-router.post('/mail', isLoggedIn, async (req: Request, res: Response) => {
-    try {
-        const { email }: User = req.body;
-        const randomNum: string = Math.random().toString().slice(2, 7);
-        console.log(1);
-        sendEmail(email, '회원가입을 위한 인증번호를 입력해주세요', randomNum);
-        return res.status(200).json({
-            randomNum,
-        });
-    }
-    catch (err) {
-        return res.status(500).json({
-            info: '/auth/mail server err',
         });
     }
 });

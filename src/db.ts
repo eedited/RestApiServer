@@ -1,5 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-import { Prisma } from '.prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 export default class DB {
     public static prisma: PrismaClient = new PrismaClient()
@@ -37,7 +36,7 @@ DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
                     uploader_id: {
                         id: params.args.data.videoId,
                         uploader: params.args.data.uploader,
-                    }
+                    },
                 },
                 data: {
                     likeCnt: { increment: 1 },
@@ -45,13 +44,13 @@ DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
             });
         }
         else if (params.action === 'update') {
-            if (params.args.data.deleted === null){
+            if (params.args.data.deletedAt === null) {
                 await DB.prisma.video.update({
                     where: {
                         uploader_id: {
                             id: params.args.where.uploader_userId_videoId.videoId,
                             uploader: params.args.where.uploader_userId_videoId.uploader,
-                        }
+                        },
                     },
                     data: {
                         likeCnt: { increment: 1 },
@@ -64,13 +63,12 @@ DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
                         uploader_id: {
                             id: params.args.where.uploader_userId_videoId.videoId,
                             uploader: params.args.where.uploader_userId_videoId.uploader,
-                        }
+                        },
                     },
                     data: {
                         likeCnt: { decrement: 1 },
                     },
                 });
-                console.log(5);
             }
         }
     }
@@ -80,37 +78,64 @@ DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
 // for Video softdelete
 DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
     // Check incoming query type
-    if (params.model == 'Video') {
-        if (params.action == 'delete') {
+    if (params.model === 'Video') {
+        if (params.action === 'delete') {
             // Delete queries
             // Change action to an update
-            params.action = 'update'
-            params.args['data'] = { deleted: new Date() }
+            // params.action = 'update';
+            // params.args.data = { deletedAt: new Date() };
+            return next({
+                ...params,
+                action: 'update',
+                args: {
+                    data: {
+                        deletedAt: new Date(),
+                    },
+                },
+            });
         }
-        if (params.action == 'deleteMany') {
+        if (params.action === 'deleteMany') {
             // Delete many queries
-            params.action = 'updateMany'
-            if (params.args.data != undefined) {
-                params.args.data['deleted'] = true;
-            } 
-            else {
-                params.args['data'] = { deleted: new Date() }
-            }
+            // params.action = 'updateMany';
+            // if (params.args.data !== undefined) {
+            //     params.args.data.deletedAt = true;
+            // }
+            // else {
+            //     params.args.data = { deletedAt: new Date() };
+            // }
+            return next({
+                ...params,
+                action: 'updateMany',
+                args: {
+                    data: {
+                        deletedAtAt: new Date(),
+                    },
+                },
+            });
         }
     }
-    return next(params)
-})
+    return next(params);
+});
 
 // for User softdelete
 DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
     // Check incoming query type
-    if (params.model == 'User') {
-        if (params.action == 'delete') {
+    if (params.model === 'User') {
+        if (params.action === 'delete') {
             // Delete queries
             // Change action to an update
-            params.action = 'update'
-            params.args['data'] = { deleted: new Date() }
+            // params.action = 'update';
+            // params.args.data = { deletedAt: new Date() };
+            return next({
+                ...params,
+                action: 'update',
+                args: {
+                    data: {
+                        deletedAt: new Date(),
+                    },
+                },
+            });
         }
     }
-    return next(params)
-})
+    return next(params);
+});

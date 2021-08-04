@@ -76,65 +76,40 @@ DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
 });
 
 // for Video softdelete
-DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
+DB.prisma.$use(async (_params: Prisma.MiddlewareParams, next: nextType) => {
+    const params: Prisma.MiddlewareParams = _params;
     // Check incoming query type
     if (params.model === 'Video') {
         if (params.action === 'delete') {
             // Delete queries
             // Change action to an update
-            // params.action = 'update';
-            // params.args.data = { deletedAt: new Date() };
-            return next({
-                ...params,
-                action: 'update',
-                args: {
-                    data: {
-                        deletedAt: new Date(),
-                    },
-                },
-            });
+            params.action = 'update';
+            params.args.data = { deletedAt: new Date() };
         }
         if (params.action === 'deleteMany') {
             // Delete many queries
-            // params.action = 'updateMany';
-            // if (params.args.data !== undefined) {
-            //     params.args.data.deletedAt = true;
-            // }
-            // else {
-            //     params.args.data = { deletedAt: new Date() };
-            // }
-            return next({
-                ...params,
-                action: 'updateMany',
-                args: {
-                    data: {
-                        deletedAtAt: new Date(),
-                    },
-                },
-            });
+            params.action = 'updateMany';
+            if (params.args.data !== undefined) {
+                params.args.data.deletedAt = true;
+            }
+            else {
+                params.args.data = { deletedAt: new Date() };
+            }
         }
     }
     return next(params);
 });
 
 // for User softdelete
-DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
+DB.prisma.$use(async (_params: Prisma.MiddlewareParams, next: nextType) => {
+    const params: Prisma.MiddlewareParams = _params;
     // Check incoming query type
     if (params.model === 'User') {
         if (params.action === 'delete') {
             // Delete queries
             // Change action to an update
-            // params.action = 'update';
-            // params.args.data = { deletedAt: new Date() };
-            return next({
-                ...params,
-                action: 'update',
-                args: {
-                    data: {
-                        deletedAt: new Date(),
-                    },
-                },
-            });
+            params.action = 'update';
+            params.args.data = { deletedAt: new Date() };
         }
     }
     return next(params);

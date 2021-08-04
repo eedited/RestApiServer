@@ -1,6 +1,6 @@
 {
     "name": "eedited_rest_api_server",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "SW Maestro 12th Team.eedited's Rest API Server",
     "main": "index.js",
     "engines": {

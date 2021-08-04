@@ -10,11 +10,10 @@ const router: Router = Router();
 
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     const { userId, password, email, birthday, nickname }: User = req.body;
-
     try {
-        const userIdPromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { userId } });
-        const emailPromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { email } });
-        const nicknamePromise: Promise<User | null> = DB.prisma.user.findUnique({ where: { nickname } });
+        const userIdPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { userId, deletedAt: null } });
+        const emailPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { email, deletedAt: null } });
+        const nicknamePromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { nickname, deletedAt: null } });
         const users: (User | null)[] = await Promise.all([userIdPromise, emailPromise, nicknamePromise]);
         if (users.filter((user: User | null) => user !== null).length > 0) {
             return res.status(404).json({
@@ -59,7 +58,7 @@ router.get('/signup/email', isNotLoggedIn, async (req: Request, res: Response) =
     }
     catch (err) {
         return res.status(500).json({
-            info: '/auth/mail - server err',
+            info: '/auth/mail - gmail err',
         });
     }
 });
@@ -80,8 +79,6 @@ router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFun
         return req.login(user, (err: Error) => {
             if (err) {
                 return res.status(500).json({
-                    success: false,
-                    err: 500,
                     info: '/auth/login - Passport Error',
                 });
             }
@@ -99,7 +96,7 @@ router.get('/logout', isLoggedIn, async (req: Request, res: Response) => {
 router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
     const { email }: User = req.body;
     try {
-        const user: (User | null) = await DB.prisma.user.findUnique({ where: { email } });
+        const user: (User | null) = await DB.prisma.user.findFirst({ where: { email, deletedAt: null } });
         if (user) {
             await sendEmail(email, '아이디 찾기', user.userId);
             return res.status(200).json({});
@@ -118,18 +115,14 @@ router.post('/find/id', isNotLoggedIn, async (req: Request, res: Response) => {
 router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response) => {
     const { userId, email }: User = req.body;
     try {
-        const user: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
+        const user: (User | null) = await DB.prisma.user.findFirst({ where: { userId, deletedAt: null } });
         if (user && user.email === email) {
             const salt: number = Number(process.env.BCRYPT_SALT);
             const changedPassword: string = Math.random().toString(36).slice(2);
             const hashedPassword: string = await bcrypt.hash(changedPassword, salt);
             await DB.prisma.user.update({
-                where: {
-                    userId,
-                },
-                data: {
-                    password: hashedPassword,
-                },
+                where: { userId },
+                data: { password: hashedPassword },
             });
             await sendEmail(email, '비밀번호 초기화', changedPassword);
             return res.status(200).json({
@@ -159,12 +152,8 @@ router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, 
         const salt: number = Number(process.env.BCRYPT_SALT);
         const hashedPassword: string = await bcrypt.hash(newpassword.toString(), salt);
         await DB.prisma.user.update({
-            where: {
-                userId,
-            },
-            data: {
-                password: hashedPassword,
-            },
+            where: { userId },
+            data: { password: hashedPassword },
         });
         return res.status(200).json({});
     }

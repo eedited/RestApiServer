@@ -65,7 +65,7 @@
         "object-property-newline": [
             "error",
             {
-                "allowAllPropertiesOnSameLine": false
+                "allowAllPropertiesOnSameLine": true
             }
         ],
         "@typescript-eslint/typedef": [

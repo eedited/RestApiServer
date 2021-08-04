@@ -1,16 +1,24 @@
 import { Request, Response, Router } from 'express';
-import { User, Video, VideoLiker } from '@prisma/client';
+import { Video, VideoLiker } from '@prisma/client';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
 const router: Router = Router();
+const take: number = 20;
 
 router.get('/', async (req: Request, res: Response) => {
+    const pageStr: string = req.query.page as string;
     try {
+        const pageNum: number = Number(pageStr);
+        if (Number.isNaN(pageNum)) {
+            return res.status(400).json({
+                info: `/video/${pageStr} not valid input`,
+            });
+        }
         const videos: Video[] = await DB.prisma.video.findMany({
-            where: {
-                deletedAt: null,
-            },
+            where: { deletedAt: null },
+            skip: pageNum * take,
+            take,
         });
         return res.status(200).json({
             videos,
@@ -18,20 +26,25 @@ router.get('/', async (req: Request, res: Response) => {
     }
     catch (err) {
         return res.status(500).json({
-            info: '/video/ router error',
+            info: `/video/${pageStr} router error`,
         });
     }
 });
 
 router.get('/sort/latest', async (req: Request, res: Response) => {
+    const pageStr: string = req.query.page as string;
     try {
+        const pageNum: number = Number(pageStr);
+        if (Number.isNaN(pageNum)) {
+            return res.status(400).json({
+                info: `/video/${pageStr} not valid input`,
+            });
+        }
         const videos: Video[] = await DB.prisma.video.findMany({
-            where: {
-                deletedAt: null,
-            },
-            orderBy: {
-                createdAt: 'desc',
-            },
+            where: { deletedAt: null },
+            orderBy: { createdAt: 'desc' },
+            skip: pageNum * take,
+            take,
         });
         return res.status(200).json({
             videos,
@@ -45,14 +58,19 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
 });
 
 router.get('/sort/thumbup', async (req: Request, res: Response) => {
+    const pageStr: string = req.query.page as string;
     try {
+        const pageNum: number = Number(pageStr);
+        if (Number.isNaN(pageNum)) {
+            return res.status(400).json({
+                info: `/video/${pageStr} not valid input`,
+            });
+        }
         const videos: Video[] = await DB.prisma.video.findMany({
-            where: {
-                deletedAt: null,
-            },
-            orderBy: {
-                likeCnt: 'desc',
-            },
+            where: { deletedAt: null },
+            orderBy: { likeCnt: 'desc' },
+            skip: pageNum * take,
+            take,
         });
         return res.status(200).json({
             videos,
@@ -67,25 +85,15 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
 
 router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
     const { title, discription, url, thumbnail }: Video = req.body;
+    const user: Express.User = req.user as Express.User;
     try {
-        if (req.user === undefined) {
-            return res.status(401).json({
-                info: '/video/upload not loggedIn',
-            });
-        }
-        const user: (User | null) = await DB.prisma.user.findUnique({ where: { userId: req.user.userId } });
-        if (!user) {
-            return res.status(401).json({
-                info: 'video/upload not exists user',
-            });
-        }
         await DB.prisma.video.create({
             data: {
                 title,
                 discription,
                 url,
                 thumbnail,
-                uploader: req.user.userId,
+                uploader: user.userId,
             },
         });
         return res.status(200).json({});
@@ -100,13 +108,9 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
 router.get('/:videoId', async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
     try {
-        const video: Video | null = await DB.prisma.video.findUnique({
-            where: {
-                id: videoId,
-            },
-        });
+        const video: (Video | null) = await DB.prisma.video.findUnique({ where: { id: videoId } });
         if (!video || video.deletedAt !== null) {
-            return res.status(401).json({
+            return res.status(404).json({
                 info: '/video/:videoId not exists video',
             });
         }
@@ -132,24 +136,25 @@ router.get('/:videoId', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/:videoId/like', isLoggedIn, async (req: Request, res: Response) => {
+router.patch('/:videoId/like', isLoggedIn, async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
+    const user: Express.User = req.user as Express.User;
     try {
-        const video: Video | null = await DB.prisma.video.findFirst({
+        const video: (Video | null) = await DB.prisma.video.findFirst({
             where: {
                 id: videoId,
                 deletedAt: null,
             },
         });
-        if (req.user === undefined || video == null) {
-            return res.status(500).json({
+        if (video == null) {
+            return res.status(404).json({
                 info: '/:videoId/like user undefind or video not exists',
             });
         }
-        const videoLiker: VideoLiker | null = await DB.prisma.videoLiker.findFirst({
+        const videoLiker: (VideoLiker | null) = await DB.prisma.videoLiker.findFirst({
             where: {
                 videoId,
-                liker: req.user.userId,
+                liker: user.userId,
                 uploader: video.uploader,
             },
         });
@@ -159,7 +164,7 @@ router.get('/:videoId/like', isLoggedIn, async (req: Request, res: Response) => 
                     where: {
                         liker_uploader_videoId: {
                             videoId,
-                            liker: req.user.userId,
+                            liker: user.userId,
                             uploader: video.uploader,
                         },
                     },
@@ -173,7 +178,7 @@ router.get('/:videoId/like', isLoggedIn, async (req: Request, res: Response) => 
                     where: {
                         liker_uploader_videoId: {
                             videoId,
-                            liker: req.user.userId,
+                            liker: user.userId,
                             uploader: video.uploader,
                         },
                     },
@@ -187,7 +192,7 @@ router.get('/:videoId/like', isLoggedIn, async (req: Request, res: Response) => 
             await DB.prisma.videoLiker.create({
                 data: {
                     videoId,
-                    liker: req.user.userId,
+                    liker: user.userId,
                     uploader: video.uploader,
                 },
             });
@@ -203,20 +208,16 @@ router.get('/:videoId/like', isLoggedIn, async (req: Request, res: Response) => 
 
 router.get('/:videoId/delete', isLoggedIn, async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
+    const user: Express.User = req.user as Express.User;
     try {
-        if (req.user === undefined) {
-            return res.status(404).json({
-                info: '/video/delete/:videoId not found user',
-            });
-        }
         const video: Video | null = await DB.prisma.video.findFirst({
             where: {
                 id: videoId,
                 deletedAt: null,
             },
         });
-        if (!video || video.deletedAt !== null || video.uploader !== req.user.userId) {
-            return res.status(401).json({
+        if (!video || video.deletedAt !== null || video.uploader !== user.userId) {
+            return res.status(403).json({
                 info: '/video/delete/:videoId not exists video or not permissioned user',
             });
         }
@@ -239,12 +240,21 @@ router.get('/:videoId/delete', isLoggedIn, async (req: Request, res: Response) =
 
 router.get('/:userId/list', async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
+    const pageStr: string = req.query.page as string;
     try {
+        const pageNum: number = Number(pageStr);
+        if (Number.isNaN(pageNum)) {
+            return res.status(400).json({
+                info: `/video/${pageStr} not valid input`,
+            });
+        }
         const videos: Video[] = await DB.prisma.video.findMany({
             where: {
                 uploader: userId,
                 deletedAt: null,
             },
+            skip: pageNum * take,
+            take,
         });
         return res.status(200).json({
             videos,

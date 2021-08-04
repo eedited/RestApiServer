@@ -17,6 +17,7 @@ import passportConfig from './passport';
  */
 import indexRouter from './routers';
 import authRouter from './routers/auth';
+import videoRouter from './routers/video';
 
 // Check Which each env Variable is set or not
 checkEnv();
@@ -73,6 +74,7 @@ app.use(passport.session());
  */
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
+app.use('/video', videoRouter);
 
 /**
  * Error
@@ -89,7 +91,6 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     res.locals.message = err.message;
     res.locals.error = process.env.NODE_ENV === 'production' ? {} : err;
-    console.error(res.locals.error);
     res.status(err.status || 500);
 });
 

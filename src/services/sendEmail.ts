@@ -4,11 +4,16 @@ import SMTPTransport from 'nodemailer/lib/smtp-transport';
 export default async function sendEmail(email: string, subject: string, Contents: string): Promise<string> {
     const transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> = nodemailer.createTransport({
         host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
+        // port: 587,
+        secure: true, // SSL: 465
         auth: {
-            user: process.env.NODEMAILER_USER,
-            pass: process.env.NODEMAILER_PASSWORD,
+            type: 'OAuth2',
+            user: process.env.OAUTH_USER,
+            clientId: process.env.OAUTH_CLIENT_ID,
+            clientSecret: process.env.OAUTH_CLIENT_SECRET,
+            refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+            // user: process.env.NODEMAILER_USER,
+            // pass: process.env.NODEMAILER_PASS,
         },
     });
     try {
@@ -19,9 +24,10 @@ export default async function sendEmail(email: string, subject: string, Contents
             subject,
             html: `<b>${Contents}</b>`,
         });
+        transporter.close();
         return emailInfo.messageId;
     }
-    catch {
+    catch (err) {
         throw new Error('Email Send Error');
     }
 }

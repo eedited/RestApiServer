@@ -63,6 +63,18 @@ router.get('/signup/email', isNotLoggedIn, async (req: Request, res: Response) =
     }
 });
 
+router.get('/check', isLoggedIn, async (req: Request, res: Response) => {
+    const { user }: Request = req;
+    if (user) {
+        return res.status(200).json({
+            userId: user.userId,
+        });
+    }
+    return res.status(404).json({
+        info: '/auth/check - no User',
+    });
+});
+
 router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('local', (authErr: Error | null, user: Express.User | null) => {
         if (authErr) {

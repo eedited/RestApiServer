@@ -31,7 +31,7 @@
         "db:show": "./node_modules/.bin/prisma studio",
         "db:create": "npm run db:push && npm run db:gen",
         "db:reverse": "npm run db:introspect && npm run db:gen",
-        "test": "./node_modules/.bin/jest --setupFiles dotenv/config --detectOpenHandles --forceExit",
+        "test": "node_modules/.bin/jest --setupFiles dotenv/config --detectOpenHandles --forceExit",
         "test:cover": "./node_modules/.bin/jest --coverage --setupFiles dotenv/config --detectOpenHandles --forceExit",
         "lint": "./node_modules/.bin/eslint . --ext .ts",
         "lint:staged": "./node_modules/.bin/lint-staged"

@@ -108,7 +108,12 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
 router.get('/:videoId', async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
     try {
-        const video: (Video | null) = await DB.prisma.video.findUnique({ where: { id: videoId } });
+        const video: (Video | null) = await DB.prisma.video.findFirst({
+            where: {
+                id: videoId,
+                deleteAt: null,
+            },
+        });
         if (!video || video.deletedAt !== null) {
             return res.status(404).json({
                 info: '/video/:videoId not exists video',

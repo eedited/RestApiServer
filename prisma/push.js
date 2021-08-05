@@ -1,4 +1,4 @@
-const { exec } = require('child_process');
+import { exec } from 'child_process';
 require('dotenv').config();
 
 switch (process.env.NODE_ENV) {

@@ -36,6 +36,10 @@ export default function checkEnv(): void {
             break;
     }
 
+    const URL: string = process.env.DB_URL as string;
+    const version: string = process.env.npm_package_version as string;
+    process.env.DB_URL = URL + version;
+
     const undefinedList: string[] = envList.filter((envVar: string) => process.env[envVar] === undefined || process.env[envVar] === '');
 
     if (undefinedList.length > 0) {

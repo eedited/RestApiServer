@@ -111,7 +111,7 @@ router.get('/:videoId', async (req: Request, res: Response) => {
         const video: (Video | null) = await DB.prisma.video.findFirst({
             where: {
                 id: videoId,
-                deleteAt: null,
+                deletedAt: null,
             },
         });
         if (!video || video.deletedAt !== null) {

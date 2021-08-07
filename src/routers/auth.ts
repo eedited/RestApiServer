@@ -64,14 +64,9 @@ router.get('/signup/email', isNotLoggedIn, async (req: Request, res: Response) =
 });
 
 router.get('/check', isLoggedIn, async (req: Request, res: Response) => {
-    const { user }: Request = req;
-    if (user) {
-        return res.status(200).json({
-            userId: user.userId,
-        });
-    }
-    return res.status(404).json({
-        info: '/auth/check - no User',
+    const user: Express.User = req.user as Express.User;
+    return res.status(200).json({
+        userId: user.userId,
     });
 });
 

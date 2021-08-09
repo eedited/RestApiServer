@@ -17,7 +17,7 @@ router.get('/', async (req: Request, res: Response) => {
         }
         const videos: Video[] = await DB.prisma.video.findMany({
             where: { deletedAt: null },
-            skip: pageNum * take,
+            skip: (pageNum - 1) * take,
             take,
         });
         return res.status(200).json({
@@ -43,7 +43,7 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
         const videos: Video[] = await DB.prisma.video.findMany({
             where: { deletedAt: null },
             orderBy: { createdAt: 'desc' },
-            skip: pageNum * take,
+            skip: (pageNum - 1) * take,
             take,
         });
         return res.status(200).json({
@@ -69,7 +69,7 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
         const videos: Video[] = await DB.prisma.video.findMany({
             where: { deletedAt: null },
             orderBy: { likeCnt: 'desc' },
-            skip: pageNum * take,
+            skip: (pageNum - 1) * take,
             take,
         });
         return res.status(200).json({
@@ -258,7 +258,7 @@ router.get('/:userId/list', async (req: Request, res: Response) => {
                 uploader: userId,
                 deletedAt: null,
             },
-            skip: pageNum * take,
+            skip: (pageNum - 1) * take,
             take,
         });
         return res.status(200).json({

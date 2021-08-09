@@ -13,6 +13,7 @@ model User {
     birthday       DateTime?    @db.Date
     nickname       String       @unique @db.VarChar(10)
     email          String       @db.VarChar(100)
+    profilePicture String       @default("/public/docs/soma_logo.png") @db.VarChar(200)
     followerCnt    Int          @default(0)
     uploadVideoCnt Int          @default(0)
     proTag         Boolean      @default(false)

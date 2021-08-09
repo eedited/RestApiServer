@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { Video, VideoLiker } from '@prisma/client';
+import { User, Video, VideoLiker } from '@prisma/client';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
@@ -130,8 +130,15 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                 viewCnt: { increment: 1 },
             },
         });
+        const user: (User | null) = await DB.prisma.user.findFirst({
+            where: {
+                userId: video.uploader,
+                deletedAt: null,
+            },
+        });
         return res.status(200).json({
             video,
+            nickname: user?.nickname,
         });
     }
     catch (err) {

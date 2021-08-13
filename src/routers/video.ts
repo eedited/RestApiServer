@@ -137,8 +137,10 @@ router.get('/:videoId', async (req: Request, res: Response) => {
             },
         });
         return res.status(200).json({
-            ...video,
-            nickname: user?.nickname,
+            video: {
+                ...video,
+                nickname: user?.nickname,
+            },
         });
     }
     catch (err) {

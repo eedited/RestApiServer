@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { Video, VideoLiker } from '@prisma/client';
+import { User, Video, VideoLiker } from '@prisma/client';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
@@ -17,11 +17,25 @@ router.get('/', async (req: Request, res: Response) => {
         }
         const videos: Video[] = await DB.prisma.video.findMany({
             where: { deletedAt: null },
-            skip: pageNum * take,
+            skip: (pageNum - 1) * take,
             take,
         });
+        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
+        const users: (User|null)[] = await Promise.all(videoPromise);
+        if (users.filter((user: User | null) => user === null).length > 0) {
+            return res.status(400).json({
+                info: `/video/${pageStr} : cannot find User`,
+            });
+        }
+        interface VideoWithNicknameType extends Video{
+            nickname?: string
+        }
+        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
+            nickname: users[idx]?.nickname,
+            ...video,
+        }));
         return res.status(200).json({
-            videos,
+            videos: videoWithNickName,
         });
     }
     catch (err) {
@@ -43,11 +57,25 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
         const videos: Video[] = await DB.prisma.video.findMany({
             where: { deletedAt: null },
             orderBy: { createdAt: 'desc' },
-            skip: pageNum * take,
+            skip: (pageNum - 1) * take,
             take,
         });
+        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
+        const users: (User|null)[] = await Promise.all(videoPromise);
+        if (users.filter((user: User | null) => user === null).length > 0) {
+            return res.status(400).json({
+                info: `/video/${pageStr} : cannot find User`,
+            });
+        }
+        interface VideoWithNicknameType extends Video{
+            nickname?: string
+        }
+        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
+            nickname: users[idx]?.nickname,
+            ...video,
+        }));
         return res.status(200).json({
-            videos,
+            videos: videoWithNickName,
         });
     }
     catch (err) {
@@ -69,11 +97,25 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
         const videos: Video[] = await DB.prisma.video.findMany({
             where: { deletedAt: null },
             orderBy: { likeCnt: 'desc' },
-            skip: pageNum * take,
+            skip: (pageNum - 1) * take,
             take,
         });
+        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
+        const users: (User|null)[] = await Promise.all(videoPromise);
+        if (users.filter((user: User | null) => user === null).length > 0) {
+            return res.status(400).json({
+                info: `/video/${pageStr} : cannot find User`,
+            });
+        }
+        interface VideoWithNicknameType extends Video{
+            nickname?: string
+        }
+        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
+            nickname: users[idx]?.nickname,
+            ...video,
+        }));
         return res.status(200).json({
-            videos,
+            videos: videoWithNickName,
         });
     }
     catch (err) {
@@ -130,8 +172,17 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                 viewCnt: { increment: 1 },
             },
         });
+        const user: (User | null) = await DB.prisma.user.findFirst({
+            where: {
+                userId: video.uploader,
+                deletedAt: null,
+            },
+        });
         return res.status(200).json({
-            video,
+            video: {
+                ...video,
+                nickname: user?.nickname,
+            },
         });
     }
     catch (err) {
@@ -258,11 +309,25 @@ router.get('/:userId/list', async (req: Request, res: Response) => {
                 uploader: userId,
                 deletedAt: null,
             },
-            skip: pageNum * take,
+            skip: (pageNum - 1) * take,
             take,
         });
+        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
+        const users: (User|null)[] = await Promise.all(videoPromise);
+        if (users.filter((user: User | null) => user === null).length > 0) {
+            return res.status(400).json({
+                info: `/video/${pageStr} : cannot find User`,
+            });
+        }
+        interface VideoWithNicknameType extends Video{
+            nickname?: string
+        }
+        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
+            nickname: users[idx]?.nickname,
+            ...video,
+        }));
         return res.status(200).json({
-            videos,
+            videos: videoWithNickName,
         });
     }
     catch (err) {

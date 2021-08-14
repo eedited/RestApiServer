@@ -9,7 +9,7 @@ import DB from '../db';
 const router: Router = Router();
 
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
-    const { userId, password, email, birthday, nickname }: User = req.body;
+    const { userId, password, email, birthday, nickname, profilePicture }: User = req.body;
     try {
         const userIdPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { userId, deletedAt: null } });
         const emailPromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { email, deletedAt: null } });
@@ -30,6 +30,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
                 birthday: birthday && new Date(birthday),
                 email,
                 nickname,
+                profilePicture,
             },
         });
 
@@ -67,6 +68,10 @@ router.get('/check', isLoggedIn, async (req: Request, res: Response) => {
     const user: Express.User = req.user as Express.User;
     return res.status(200).json({
         userId: user.userId,
+        nickname: user.nickname,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        proTag: user.proTag,
     });
 });
 
@@ -170,5 +175,26 @@ router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, 
         });
     }
 });
+
+// router.delete('/:userId', isLoggedIn, async (req: Request, res: Response) => {
+//     const { userId }: typeof req.params = req.params;
+//     const user: Express.User = req.user as Express.User;
+//     try {
+//         if (userId !== user.userId) {
+//             return res.status(401).json({
+//                 info: '/auth/:userId Unauthorized',
+//             });
+//         }
+//         await DB.prisma.user.delete({
+//             where: { userId },
+//         });
+//         return res.redirect('/logout');
+//     }
+//     catch (err) {
+//         return res.status(500).json({
+//             info: '/auth/:userId server error',
+//         });
+//     }
+// });
 
 export default router;

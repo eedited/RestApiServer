@@ -17,7 +17,7 @@ type doneFunctionType = (error: Error | null, user: Express.User | null) => void
 const localStrategyVerify: localPassport.VerifyFunction = async (userId: string, password: string, done: doneFunctionType) => {
     const prisma: PrismaClient = new PrismaClient();
     try {
-        const user: (User | null) = await prisma.user.findUnique({ where: { userId } });
+        const user: (User | null) = await prisma.user.findFirst({ where: { userId, deletedAt: null } });
         if (!user) return done(null, null);
 
         const isMatched: boolean = await bcrypt.compare(password, user.password);

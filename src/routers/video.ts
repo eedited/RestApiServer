@@ -20,8 +20,22 @@ router.get('/', async (req: Request, res: Response) => {
             skip: (pageNum - 1) * take,
             take,
         });
+        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
+        const users: (User|null)[] = await Promise.all(videoPromise);
+        if (users.filter((user: User | null) => user === null).length > 0) {
+            return res.status(400).json({
+                info: `/video/${pageStr} : cannot find User`,
+            });
+        }
+        interface VideoWithNicknameType extends Video{
+            nickname?: string
+        }
+        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
+            nickname: users[idx]?.nickname,
+            ...video,
+        }));
         return res.status(200).json({
-            videos,
+            videos: videoWithNickName,
         });
     }
     catch (err) {
@@ -46,8 +60,22 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
             skip: (pageNum - 1) * take,
             take,
         });
+        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
+        const users: (User|null)[] = await Promise.all(videoPromise);
+        if (users.filter((user: User | null) => user === null).length > 0) {
+            return res.status(400).json({
+                info: `/video/${pageStr} : cannot find User`,
+            });
+        }
+        interface VideoWithNicknameType extends Video{
+            nickname?: string
+        }
+        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
+            nickname: users[idx]?.nickname,
+            ...video,
+        }));
         return res.status(200).json({
-            videos,
+            videos: videoWithNickName,
         });
     }
     catch (err) {
@@ -72,8 +100,22 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
             skip: (pageNum - 1) * take,
             take,
         });
+        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
+        const users: (User|null)[] = await Promise.all(videoPromise);
+        if (users.filter((user: User | null) => user === null).length > 0) {
+            return res.status(400).json({
+                info: `/video/${pageStr} : cannot find User`,
+            });
+        }
+        interface VideoWithNicknameType extends Video{
+            nickname?: string
+        }
+        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
+            nickname: users[idx]?.nickname,
+            ...video,
+        }));
         return res.status(200).json({
-            videos,
+            videos: videoWithNickName,
         });
     }
     catch (err) {
@@ -270,8 +312,22 @@ router.get('/:userId/list', async (req: Request, res: Response) => {
             skip: (pageNum - 1) * take,
             take,
         });
+        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
+        const users: (User|null)[] = await Promise.all(videoPromise);
+        if (users.filter((user: User | null) => user === null).length > 0) {
+            return res.status(400).json({
+                info: `/video/${pageStr} : cannot find User`,
+            });
+        }
+        interface VideoWithNicknameType extends Video{
+            nickname?: string
+        }
+        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
+            nickname: users[idx]?.nickname,
+            ...video,
+        }));
         return res.status(200).json({
-            videos,
+            videos: videoWithNickName,
         });
     }
     catch (err) {

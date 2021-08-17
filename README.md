@@ -1,10 +1,16 @@
 # Rest API Server
 
+<img alt="TypeScript" src ="https://img.shields.io/badge/TypeScript-3178C6.svg?&style=for-the-badge&logo=TypeScript&logoColor=black"/>
+
+<img alt="Node.js" src ="https://img.shields.io/badge/Node.js-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white"/>
+
+<img alt="npm" src ="https://img.shields.io/badge/npm-CB3837.svg?&style=for-the-badge&logo=npm&logoColor=white"/>
+
 Rest API Server of **eedited** Service.
 
 This server is written in typescript, distributed by docker in AWS.
 
-> Have to use node v14.16.1
+> Have to use node v14.16.1, npm v7.20.5
 
 -   [Prerequisite](#pre)
 -   [Quick-Start](#start)
@@ -20,7 +26,7 @@ This server is written in typescript, distributed by docker in AWS.
     -   [Database Schemas](#db-schemas)
         -   [user](#db-user)
         -   [video](#db-video)
-    -   [docker](#docker)
+        -   [videoLiker](#db-video-liker)
 -   [Contact](#contact)
 -   [Support](#support)
 
@@ -67,6 +73,8 @@ To stop, use `npm run shutdown`
 
 `npm run dev` runs on `ts-node`, whereas `npm run dev:dist` runs on `tsc & node`.
 
+See [this](./docs/start.md) for more details.
+
 ---
 
 <a id="docs"></a>
@@ -95,13 +103,11 @@ To stop, use `npm run shutdown`
 
 -   ### Database Schemas
     <a id="db-user"></a>
-    -   [index](./docs/schemas/user.md)
+    -   [user](./docs/schemas/user.md)
         <a id="db-video"></a>
-    -   [auth](./docs/schemas/video.md)
-
-<a id="docker"></a>
-
--   ### [docker](./docs/docker.md)
+    -   [video](./docs/schemas/video.md)
+        <a id="db-video-liker"></a>
+    -   [videoLiker](./docs/schemas/videoLiker.md)
 
 ---
 

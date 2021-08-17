@@ -2,12 +2,16 @@
 
 ## /video
 
+## [Back to Main](../../README.md)
+
 > Updated: 8/16 2021. \
 > v0.3.2
 
-| API          | Get Pagenated Video                                                                                                                                                                                   |
+---
+
+| API          | Get Pagenated Video                                                                                                                                                                       |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Description  | Get a page of videos                                                                                                                                                                |
+| Description  | Get a page of videos                                                                                                                                                                      |
 | Domain       | https://api.eedited.com:3000                                                                                                                                                              |
 | Path         | /video/signup                                                                                                                                                                             |
 | Method       | POST                                                                                                                                                                                      |

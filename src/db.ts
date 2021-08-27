@@ -48,8 +48,8 @@ DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
                 await DB.prisma.video.update({
                     where: {
                         uploader_id: {
-                            id: params.args.where.uploader_userId_videoId.videoId,
-                            uploader: params.args.where.uploader_userId_videoId.uploader,
+                            id: params.args.where.liker_uploader_videoId.videoId,
+                            uploader: params.args.where.liker_uploader_videoId.uploader,
                         },
                     },
                     data: {
@@ -61,8 +61,8 @@ DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
                 await DB.prisma.video.update({
                     where: {
                         uploader_id: {
-                            id: params.args.where.uploader_userId_videoId.videoId,
-                            uploader: params.args.where.uploader_userId_videoId.uploader,
+                            id: params.args.where.liker_uploader_videoId.videoId,
+                            uploader: params.args.where.liker_uploader_videoId.uploader,
                         },
                     },
                     data: {

@@ -192,15 +192,15 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                 videoId: video.id,
             },
         });
-        const returnTag: ({name: string, id: string}|null)[] = tags.map((tag: VideoTag|null) => {
-            if (tag !== null) return { name: tag.tagName, id: tag.id };
+        const returnTag: ({name: string}|null)[] = tags.map((tag: VideoTag|null) => {
+            if (tag !== null) return { name: tag.tagName };
             return null;
         });
         return res.status(200).json({
             video: {
                 ...video,
                 nickname: user?.nickname,
-                videoTag: returnTag.filter((tag: {name: string, id: string}|null) => (tag !== null)),
+                videoTag: returnTag.filter((tag: {name: string}|null) => (tag !== null)),
             },
         });
     }

@@ -60,11 +60,11 @@ model Video {
 }
 
 model VideoTag {
-    id              String      @id @default(uuid())
     videoId         String       
     uploader        String      @db.VarChar(50)
     createdAt       DateTime    @default(now())
     deletedAt       DateTime?
     tagName         String      @db.VarChar(30)
     Video           Video       @relation(fields:[videoId, uploader], references: [id, uploader])
+    @@id([videoId, uploader])
 }

@@ -53,8 +53,18 @@ model Video {
     updatedAt       DateTime     @updatedAt
     deletedAt       DateTime?
     User            User         @relation(fields: [uploader], references: [userId])
+    VideoTag        VideoTag[]
     WhoVideoUpload  VideoLiker[] @relation("WhoVideoUpload")
     WhatVideoUpload VideoLiker[] @relation("WhatVideoUpload")
-
     @@id([uploader, id])
+}
+
+model VideoTag {
+    videoId         String       
+    uploader        String      @db.VarChar(50)
+    createdAt       DateTime    @default(now())
+    deletedAt       DateTime?
+    tagName         String      @db.VarChar(30)
+    Video           Video       @relation(fields:[videoId, uploader], references: [id, uploader])
+    @@id([videoId, uploader])
 }

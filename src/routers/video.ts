@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { User, Video, VideoLiker } from '@prisma/client';
+import { User, Video, VideoLiker, VideoTag } from '@prisma/client';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
@@ -126,10 +126,10 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
 });
 
 router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
-    const { title, discription, url, thumbnail }: Video = req.body;
+    const { title, discription, url, thumbnail, tags }: Video&{tags: string[]} = req.body;
     const user: Express.User = req.user as Express.User;
     try {
-        await DB.prisma.video.create({
+        const uploadedVideo: Video = await DB.prisma.video.create({
             data: {
                 title,
                 discription,
@@ -138,6 +138,14 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
                 uploader: user.userId,
             },
         });
+        const tagPromise: Promise<VideoTag|null>[] = tags.map((tag: string) => DB.prisma.videoTag.create({
+            data: {
+                uploader: uploadedVideo.uploader,
+                videoId: uploadedVideo.id,
+                tagName: tag,
+            },
+        }));
+        Promise.all(tagPromise);
         return res.status(200).json({});
     }
     catch (err) {
@@ -178,10 +186,21 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                 deletedAt: null,
             },
         });
+        const tags: (VideoTag|null)[] = await DB.prisma.videoTag.findMany({
+            where: {
+                uploader: video.uploader,
+                videoId: video.id,
+            },
+        });
+        const returnTag: ({name: string}|null)[] = tags.map((tag: VideoTag|null) => {
+            if (tag !== null) return { name: tag.tagName };
+            return null;
+        });
         return res.status(200).json({
             video: {
                 ...video,
                 nickname: user?.nickname,
+                videoTag: returnTag.filter((tag: {name: string}|null) => (tag !== null)),
             },
         });
     }

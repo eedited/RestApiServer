@@ -4,7 +4,8 @@
     "description": "SW Maestro 12th Team.eedited's Rest API Server",
     "main": "index.js",
     "engines": {
-        "node": "14.16.1"
+        "node": "14.16.1",
+        "npm": "7.20.5"
     },
     "engineStrict": true,
     "scripts": {

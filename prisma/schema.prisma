@@ -65,10 +65,11 @@ model VideoTag {
     videoId            String
     uploader           String    @db.VarChar(50)
     createdAt          DateTime  @default(now())
-    deletedAt          DateTime?
     tagName            String    @db.VarChar(30)
+    updatedAt          DateTime  @updatedAt
+    deletedAt          DateTime?
     WhoVideoUploadTag  Video     @relation("WhoVideoUploadTag", fields: [uploader], references: [uploader])
     WhatVideoUploadTag Video     @relation("WhatVideoUploadTag", fields: [videoId], references: [id])
 
-    @@id([videoId, uploader])
+    @@id([videoId, uploader, tagName])
 }

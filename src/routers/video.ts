@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { User, Video, VideoLiker, VideoTag } from '@prisma/client';
+import { prisma, User, Video, VideoLiker, VideoTag } from '@prisma/client';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
@@ -8,6 +8,7 @@ const take: number = 20;
 
 router.get('/', async (req: Request, res: Response) => {
     const pageStr: string = req.query.page as string;
+    const { user }: Request = req;
     try {
         const pageNum: number = Number(pageStr);
         if (Number.isNaN(pageNum)) {
@@ -15,27 +16,46 @@ router.get('/', async (req: Request, res: Response) => {
                 info: `/video/${pageStr} not valid input`,
             });
         }
-        const videos: Video[] = await DB.prisma.video.findMany({
-            where: { deletedAt: null },
-            skip: (pageNum - 1) * take,
-            take,
-        });
-        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
-        const users: (User|null)[] = await Promise.all(videoPromise);
-        if (users.filter((user: User | null) => user === null).length > 0) {
-            return res.status(400).json({
-                info: `/video/${pageStr} : cannot find User`,
+        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
+        if (user) {
+            videos = await DB.prisma.video.findMany({
+                where: { deletedAt: null },
+                skip: (pageNum - 1) * take,
+                take,
+                include: {
+                    WhatVideoUpload: {
+                        where: {
+                            liker: user.userId,
+                            deletedAt: null,
+                        },
+                        select: {
+                            liker: true,
+                        },
+                    },
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
             });
         }
-        interface VideoWithNicknameType extends Video{
-            nickname?: string
+        else {
+            videos = await DB.prisma.video.findMany({
+                where: { deletedAt: null },
+                skip: (pageNum - 1) * take,
+                take,
+                include: {
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
+            });
         }
-        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
-            nickname: users[idx]?.nickname,
-            ...video,
-        }));
         return res.status(200).json({
-            videos: videoWithNickName,
+            videos,
         });
     }
     catch (err) {
@@ -47,6 +67,7 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.get('/sort/latest', async (req: Request, res: Response) => {
     const pageStr: string = req.query.page as string;
+    const { user }: Request = req;
     try {
         const pageNum: number = Number(pageStr);
         if (Number.isNaN(pageNum)) {
@@ -54,28 +75,48 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
                 info: `/video/${pageStr} not valid input`,
             });
         }
-        const videos: Video[] = await DB.prisma.video.findMany({
-            where: { deletedAt: null },
-            orderBy: { createdAt: 'desc' },
-            skip: (pageNum - 1) * take,
-            take,
-        });
-        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
-        const users: (User|null)[] = await Promise.all(videoPromise);
-        if (users.filter((user: User | null) => user === null).length > 0) {
-            return res.status(400).json({
-                info: `/video/${pageStr} : cannot find User`,
+        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
+        if (user) {
+            videos = await DB.prisma.video.findMany({
+                where: { deletedAt: null },
+                skip: (pageNum - 1) * take,
+                orderBy: { createdAt: 'desc' },
+                take,
+                include: {
+                    WhatVideoUpload: {
+                        where: {
+                            liker: user.userId,
+                            deletedAt: null,
+                        },
+                        select: {
+                            liker: true,
+                        },
+                    },
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
             });
         }
-        interface VideoWithNicknameType extends Video{
-            nickname?: string
+        else {
+            videos = await DB.prisma.video.findMany({
+                where: { deletedAt: null },
+                skip: (pageNum - 1) * take,
+                orderBy: { createdAt: 'desc' },
+                take,
+                include: {
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
+            });
         }
-        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
-            nickname: users[idx]?.nickname,
-            ...video,
-        }));
         return res.status(200).json({
-            videos: videoWithNickName,
+            videos,
         });
     }
     catch (err) {
@@ -87,6 +128,7 @@ router.get('/sort/latest', async (req: Request, res: Response) => {
 
 router.get('/sort/thumbup', async (req: Request, res: Response) => {
     const pageStr: string = req.query.page as string;
+    const { user }: Request = req;
     try {
         const pageNum: number = Number(pageStr);
         if (Number.isNaN(pageNum)) {
@@ -94,28 +136,49 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
                 info: `/video/${pageStr} not valid input`,
             });
         }
-        const videos: Video[] = await DB.prisma.video.findMany({
-            where: { deletedAt: null },
-            orderBy: { likeCnt: 'desc' },
-            skip: (pageNum - 1) * take,
-            take,
-        });
-        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
-        const users: (User|null)[] = await Promise.all(videoPromise);
-        if (users.filter((user: User | null) => user === null).length > 0) {
-            return res.status(400).json({
-                info: `/video/${pageStr} : cannot find User`,
+        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
+        if (user) {
+            videos = await DB.prisma.video.findMany({
+                where: { deletedAt: null },
+                skip: (pageNum - 1) * take,
+                orderBy: { likeCnt: 'desc' },
+                take,
+                include: {
+                    WhatVideoUpload: {
+                        where: {
+                            liker: user.userId,
+                            deletedAt: null,
+                        },
+                        select: {
+                            liker: true,
+                        },
+                    },
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
             });
         }
-        interface VideoWithNicknameType extends Video{
-            nickname?: string
+        else {
+            videos = await DB.prisma.video.findMany({
+                where: { deletedAt: null },
+                skip: (pageNum - 1) * take,
+                orderBy: { likeCnt: 'desc' },
+                take,
+                include: {
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
+            });
         }
-        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
-            nickname: users[idx]?.nickname,
-            ...video,
-        }));
+
         return res.status(200).json({
-            videos: videoWithNickName,
+            videos,
         });
     }
     catch (err) {
@@ -138,14 +201,19 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
                 uploader: user.userId,
             },
         });
-        const tagPromise: Promise<VideoTag|null>[] = tags.map((tag: string) => DB.prisma.videoTag.create({
-            data: {
-                uploader: uploadedVideo.uploader,
-                videoId: uploadedVideo.id,
-                tagName: tag,
-            },
+        const tagData: {
+            uploader: string;
+            videoId: string;
+            tagName: string;
+        }[] = tags.map((tag: string) => ({
+            uploader: uploadedVideo.uploader,
+            videoId: uploadedVideo.id,
+            tagName: tag,
         }));
-        Promise.all(tagPromise);
+        await DB.prisma.videoTag.createMany({
+            data: tagData,
+            skipDuplicates: true,
+        });
         return res.status(200).json({});
     }
     catch (err) {
@@ -157,13 +225,48 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
 
 router.get('/:videoId', async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
+    const { user }: Request = req;
     try {
-        const video: (Video | null) = await DB.prisma.video.findFirst({
-            where: {
-                id: videoId,
-                deletedAt: null,
-            },
-        });
+        let video: ((Video&{User: {nickname: string}}&{WhatVideoUpload?: {liker: string}[]})| null);
+        if (user) {
+            video = await DB.prisma.video.findFirst({
+                where: {
+                    id: videoId,
+                    deletedAt: null,
+                },
+                include: {
+                    WhatVideoUpload: {
+                        where: {
+                            liker: user.userId,
+                            deletedAt: null,
+                        },
+                        select: {
+                            liker: true,
+                        },
+                    },
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
+            });
+        }
+        else {
+            video = await DB.prisma.video.findFirst({
+                where: {
+                    id: videoId,
+                    deletedAt: null,
+                },
+                include: {
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
+            });
+        }
         if (!video || video.deletedAt !== null) {
             return res.status(404).json({
                 info: '/video/:videoId not exists video',
@@ -180,28 +283,20 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                 viewCnt: { increment: 1 },
             },
         });
-        const user: (User | null) = await DB.prisma.user.findFirst({
-            where: {
-                userId: video.uploader,
-                deletedAt: null,
-            },
-        });
         const tags: (VideoTag|null)[] = await DB.prisma.videoTag.findMany({
             where: {
                 uploader: video.uploader,
                 videoId: video.id,
             },
+            orderBy: { tagName: 'desc' },
         });
-        const returnTag: ({name: string}|null)[] = tags.map((tag: VideoTag|null) => {
-            if (tag !== null) return { name: tag.tagName };
+        const returnTag: ({tagName: string}|null)[] = tags.map((tag: VideoTag|null) => {
+            if (tag !== null) return { tagName: tag.tagName };
             return null;
         });
         return res.status(200).json({
-            video: {
-                ...video,
-                nickname: user?.nickname,
-                videoTag: returnTag.filter((tag: {name: string}|null) => (tag !== null)),
-            },
+            ...video,
+            VideoTag: returnTag,
         });
     }
     catch (err) {
@@ -315,6 +410,7 @@ router.get('/:videoId/delete', isLoggedIn, async (req: Request, res: Response) =
 
 router.get('/:userId/list', async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
+    const { user }: Request = req;
     const pageStr: string = req.query.page as string;
     try {
         const pageNum: number = Number(pageStr);
@@ -323,30 +419,52 @@ router.get('/:userId/list', async (req: Request, res: Response) => {
                 info: `/video/${pageStr} not valid input`,
             });
         }
-        const videos: Video[] = await DB.prisma.video.findMany({
-            where: {
-                uploader: userId,
-                deletedAt: null,
-            },
-            skip: (pageNum - 1) * take,
-            take,
-        });
-        const videoPromise: Promise<User|null>[] = videos.map((video: Video): Promise<User|null> => DB.prisma.user.findFirst({ where: { userId: video.uploader, deletedAt: null } }));
-        const users: (User|null)[] = await Promise.all(videoPromise);
-        if (users.filter((user: User | null) => user === null).length > 0) {
-            return res.status(400).json({
-                info: `/video/${pageStr} : cannot find User`,
+        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
+        if (user) {
+            videos = await DB.prisma.video.findMany({
+                where: {
+                    uploader: userId,
+                    deletedAt: null,
+                },
+                skip: (pageNum - 1) * take,
+                take,
+                include: {
+                    WhatVideoUpload: {
+                        where: {
+                            liker: user.userId,
+                            deletedAt: null,
+                        },
+                        select: {
+                            liker: true,
+                        },
+                    },
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
             });
         }
-        interface VideoWithNicknameType extends Video{
-            nickname?: string
+        else {
+            videos = await DB.prisma.video.findMany({
+                where: {
+                    uploader: userId,
+                    deletedAt: null,
+                },
+                skip: (pageNum - 1) * take,
+                take,
+                include: {
+                    User: {
+                        select: {
+                            nickname: true,
+                        },
+                    },
+                },
+            });
         }
-        const videoWithNickName: VideoWithNicknameType[] = videos.map((video: Video, idx: number) => ({
-            nickname: users[idx]?.nickname,
-            ...video,
-        }));
         return res.status(200).json({
-            videos: videoWithNickName,
+            videos,
         });
     }
     catch (err) {

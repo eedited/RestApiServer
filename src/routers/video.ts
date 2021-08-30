@@ -227,7 +227,7 @@ router.get('/:videoId', async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
     const { user }: Request = req;
     try {
-        let video: ((Video&{User: {nickname: string}}&{WhatVideoUpload?: {liker: string}[]})| null);
+        let video: ((Video&{User: {nickname: string}}&{WhatVideoUpload?: {liker: string}[]}&{WhatVideoUploadTag?: {tagName: string}[]})| null);
         if (user) {
             video = await DB.prisma.video.findFirst({
                 where: {
@@ -249,6 +249,11 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                             nickname: true,
                         },
                     },
+                    WhatVideoUploadTag: {
+                        select: {
+                            tagName: true,
+                        },
+                    },
                 },
             });
         }
@@ -262,6 +267,11 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                     User: {
                         select: {
                             nickname: true,
+                        },
+                    },
+                    WhatVideoUploadTag: {
+                        select: {
+                            tagName: true,
                         },
                     },
                 },
@@ -283,20 +293,8 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                 viewCnt: { increment: 1 },
             },
         });
-        const tags: (VideoTag|null)[] = await DB.prisma.videoTag.findMany({
-            where: {
-                uploader: video.uploader,
-                videoId: video.id,
-            },
-            orderBy: { tagName: 'desc' },
-        });
-        const returnTag: ({tagName: string}|null)[] = tags.map((tag: VideoTag|null) => {
-            if (tag !== null) return { tagName: tag.tagName };
-            return null;
-        });
         return res.status(200).json({
             ...video,
-            VideoTag: returnTag,
         });
     }
     catch (err) {

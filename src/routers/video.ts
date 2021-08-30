@@ -180,7 +180,9 @@ router.post('/getTags', isLoggedIn, (req: Request, res: Response) => {
                 // return res.status(500).json({
                 //     info: '/video/getTags client.detectLabels func error',
                 // });
-                return err;
+                return res.status(500).json({
+                    info: '/video/upload router detectLabels callback function error',
+                });
             }
             if (response.Labels === undefined) {
                 return res.status(500).json({

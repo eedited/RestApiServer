@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { User, Video, VideoLiker, VideoTag } from '@prisma/client';
+import AWS from 'aws-sdk';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
@@ -151,6 +152,54 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
     catch (err) {
         return res.status(500).json({
             info: '/video/upload router error',
+        });
+    }
+});
+
+router.post('/getTags', isLoggedIn, (req: Request, res: Response) => {
+    const { thumbnail }: Video = req.body;
+    try {
+        AWS.config.update({
+            accessKeyId: process.env.S3_ACCESS_KEY_ID,
+            secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+            region: process.env.S3_REGION,
+        });
+        const bucket: string = 'eedited-thumbnail';
+        const client: AWS.Rekognition = new AWS.Rekognition();
+        const params: AWS.Rekognition.Types.DetectLabelsRequest = {
+            Image: {
+                S3Object: {
+                    Bucket: bucket,
+                    Name: thumbnail,
+                },
+            },
+            MaxLabels: 10,
+        };
+        client.detectLabels(params, (err: AWS.AWSError, response: AWS.Rekognition.Types.DetectLabelsResponse) => {
+            if (err) {
+                // return res.status(500).json({
+                //     info: '/video/getTags client.detectLabels func error',
+                // });
+                return err;
+            }
+            if (response.Labels === undefined) {
+                return res.status(500).json({
+                    info: '/video/upload router error',
+                });
+            }
+            const tags: (string)[] = response.Labels.map((label: AWS.Rekognition.Types.Label) => {
+                if (label.Name) return label.Name;
+                return '';
+            }).filter((name: string) => name !== '');
+            return res.status(200).json({
+                tags,
+            });
+        });
+        return res;
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/video/getTags router error',
         });
     }
 });

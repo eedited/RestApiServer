@@ -22,6 +22,8 @@ model User {
     deletedAt      DateTime?
     VideoLiker     VideoLiker[]
     Video          Video[]
+    followFrom     Follower[]   @relation("followFrom")
+    followTo       Follower[]   @relation("followTo")
 
     @@index([email], name: "email")
 }
@@ -64,12 +66,24 @@ model Video {
 model VideoTag {
     videoId            String
     uploader           String    @db.VarChar(50)
-    createdAt          DateTime  @default(now())
     tagName            String    @db.VarChar(30)
+    createdAt          DateTime  @default(now())
     updatedAt          DateTime  @updatedAt
     deletedAt          DateTime?
     WhoVideoUploadTag  Video     @relation("WhoVideoUploadTag", fields: [uploader], references: [uploader])
     WhatVideoUploadTag Video     @relation("WhatVideoUploadTag", fields: [videoId], references: [id])
 
     @@id([videoId, uploader, tagName])
+}
+
+model Follower {
+    followerId  String    @db.VarChar(50)
+    followingId String    @db.VarChar(50)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
+    followFrom  User      @relation("followFrom", fields: [followerId], references: [userId])
+    followTo    User      @relation("followTo", fields: [followingId], references: [userId])
+
+    @@id([followerId, followingId])
 }

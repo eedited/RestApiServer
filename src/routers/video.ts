@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { User, Video, VideoLiker, VideoTag } from '@prisma/client';
+import { Video, VideoLiker } from '@prisma/client';
 import AWS from 'aws-sdk';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';

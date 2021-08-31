@@ -72,6 +72,40 @@ DB.prisma.$use(async (params: Prisma.MiddlewareParams, next: nextType) => {
             }
         }
     }
+    else if (params.model === 'Follower') {
+        if (params.action === 'create') {
+            await DB.prisma.user.update({
+                where: {
+                    userId: params.args.data.followerId,
+                },
+                data: {
+                    followerCnt: { increment: 1 },
+                },
+            });
+        }
+        else if (params.action === 'update') {
+            if (params.args.data.deletedAt === null) {
+                await DB.prisma.user.update({
+                    where: {
+                        userId: params.args.where.followerId_followingId.followerId,
+                    },
+                    data: {
+                        followerCnt: { increment: 1 },
+                    },
+                });
+            }
+            else {
+                await DB.prisma.user.update({
+                    where: {
+                        userId: params.args.where.followerId_followingId.followerId,
+                    },
+                    data: {
+                        followerCnt: { decrement: 1 },
+                    },
+                });
+            }
+        }
+    }
     return next(params);
 });
 

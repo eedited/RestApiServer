@@ -18,6 +18,7 @@ import passportConfig from './passport';
 import indexRouter from './routers';
 import authRouter from './routers/auth';
 import videoRouter from './routers/video';
+import userRouter from './routers/user';
 
 // Check Which each env Variable is set or not
 checkEnv();
@@ -75,6 +76,7 @@ app.use(passport.session());
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/video', videoRouter);
+app.use('/user', userRouter);
 
 /**
  * Error

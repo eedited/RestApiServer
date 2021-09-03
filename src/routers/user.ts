@@ -1,6 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { User, Video, VideoTag, Follower } from '@prisma/client';
-import { takeCoverage } from 'v8';
+import { User, Video, Follower } from '@prisma/client';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 

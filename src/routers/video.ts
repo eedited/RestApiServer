@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { Video, VideoLiker } from '@prisma/client';
+import { User, Video, VideoLiker } from '@prisma/client';
 import AWS from 'aws-sdk';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
@@ -278,7 +278,7 @@ router.get('/:videoId', async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
     const { user }: Request = req;
     try {
-        let video: ((Video&{User: {nickname: string}}&{WhatVideoUpload?: {liker: string}[]}&{WhatVideoUploadTag?: {tagName: string}[]})| null);
+        let video: (Video & { User: User & { followTo: { followerId: string; }[]; }; WhatVideoUploadTag: { tagName: string; }[]; WhatVideoUpload: { liker: string; }[]; }) | (Video & { User: { nickname: string; }; WhatVideoUploadTag: { tagName: string; }[]; }) | null;
         if (user) {
             video = await DB.prisma.video.findFirst({
                 where: {
@@ -298,6 +298,15 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                     User: {
                         select: {
                             nickname: true,
+                            followTo: {
+                                where: {
+                                    followerId: user.userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    followerId: true,
+                                },
+                            },
                         },
                     },
                     WhatVideoUploadTag: {

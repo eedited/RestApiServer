@@ -117,7 +117,6 @@ router.get('/:userId', async (req: Request, res: Response) => {
             .map((tag: {tagName: string;}) => tag.tagName)
             .reduce((acc: {[key: string]: number}, tag: string) => {
                 acc[tag] = (acc[tag] || 0) + 1;
-                acc.totalTagNum = (acc.totalTagNum || 0) + 1;
                 return acc;
             }, {});
         return res.status(200).json({

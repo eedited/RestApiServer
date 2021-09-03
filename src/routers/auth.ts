@@ -67,11 +67,7 @@ router.get('/signup/email', isNotLoggedIn, async (req: Request, res: Response) =
 router.get('/check', isLoggedIn, async (req: Request, res: Response) => {
     const user: Express.User = req.user as Express.User;
     return res.status(200).json({
-        userId: user.userId,
-        nickname: user.nickname,
-        email: user.email,
-        profilePicture: user.profilePicture,
-        proTag: user.proTag,
+        ...user,
     });
 });
 

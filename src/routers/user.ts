@@ -71,47 +71,96 @@ router.patch('/:userId/follow', isLoggedIn, async (req: Request, res: Response) 
 
 router.get('/:userId', async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
+    const { user }: Request = req;
     try {
-        const user: (User & { Video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; })[]; followFrom: { followingId: string; }[]; }) | null = await DB.prisma.user.findFirst({
-            where: {
-                userId,
-                deletedAt: null,
-            },
-            include: {
-                Video: {
-                    where: {
-                        uploader: userId,
-                        deletedAt: null,
-                    },
-                    include: {
-                        WhoVideoUploadTag: {
-                            where: {
-                                uploader: userId,
-                                deletedAt: null,
+        let userInfo: (User & { Video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; })[]; followFrom: { followingId: string; }[]; }) | null;
+        if (user) {
+            userInfo = await DB.prisma.user.findFirst({
+                where: {
+                    userId,
+                    deletedAt: null,
+                },
+                include: {
+                    Video: {
+                        where: {
+                            uploader: userId,
+                            deletedAt: null,
+                        },
+                        include: {
+                            WhoVideoUploadTag: {
+                                where: {
+                                    uploader: userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    tagName: true,
+                                },
                             },
-                            select: {
-                                tagName: true,
+                            WhatVideoUpload: {
+                                where: {
+                                    liker: user.userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    liker: true,
+                                },
                             },
                         },
                     },
-                },
-                followFrom: {
-                    where: {
-                        followerId: userId,
-                        deletedAt: null,
+                    followFrom: {
+                        where: {
+                            followerId: userId,
+                            deletedAt: null,
+                        },
+                        select: {
+                            followingId: true,
+                        },
                     },
-                    select: {
-                        followingId: true,
+                },
+            });
+        }
+        else {
+            userInfo = await DB.prisma.user.findFirst({
+                where: {
+                    userId,
+                    deletedAt: null,
+                },
+                include: {
+                    Video: {
+                        where: {
+                            uploader: userId,
+                            deletedAt: null,
+                        },
+                        include: {
+                            WhoVideoUploadTag: {
+                                where: {
+                                    uploader: userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    tagName: true,
+                                },
+                            },
+                        },
+                    },
+                    followFrom: {
+                        where: {
+                            followerId: userId,
+                            deletedAt: null,
+                        },
+                        select: {
+                            followingId: true,
+                        },
                     },
                 },
-            },
-        });
-        if (!user) {
+            });
+        }
+        if (!userInfo) {
             return res.status(404).json({
                 info: `/user/${userId} user not found`,
             });
         }
-        const tags: {[key: string]: number} = user.Video
+        const tags: {[key: string]: number} = userInfo.Video
             .map((video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; })) => video.WhoVideoUploadTag)
             .reduce((acc: {tagName: string;}[], tag: {tagName: string;}[]) => [...acc, ...tag], [])
             .map((tag: {tagName: string;}) => tag.tagName)
@@ -120,7 +169,7 @@ router.get('/:userId', async (req: Request, res: Response) => {
                 return acc;
             }, {});
         return res.status(200).json({
-            ...user,
+            ...userInfo,
             tags,
         });
     }

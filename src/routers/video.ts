@@ -223,6 +223,53 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
         });
     }
 });
+router.patch('/upload', isLoggedIn, async (req: Request, res: Response) => {
+    const { id, title, discription, url, thumbnail, tags }: Video&{tags: string[]} = req.body;
+    const user: Express.User = req.user as Express.User;
+    try {
+        const uploadedVideo: Video = await DB.prisma.video.update({
+            where: {
+                uploader_id: {
+                    id,
+                    uploader: user.userId,
+                },
+            },
+            data: {
+                title,
+                discription,
+                url,
+                thumbnail,
+                uploader: user.userId,
+            },
+        });
+        const tagData: {
+            uploader: string;
+            videoId: string;
+            tagName: string;
+        }[] = tags.map((tag: string) => ({
+            uploader: uploadedVideo.uploader,
+            videoId: uploadedVideo.id,
+            tagName: tag,
+        }));
+        await DB.prisma.videoTag.deleteMany({
+            where: {
+                WhatVideoUploadTag: {
+                    id,
+                },
+            },
+        });
+        await DB.prisma.videoTag.createMany({
+            data: tagData,
+            skipDuplicates: true,
+        });
+        return res.status(200).json({});
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/video/upload router error',
+        });
+    }
+});
 
 router.post('/getTags', isLoggedIn, (req: Request, res: Response) => {
     const { thumbnail }: Video = req.body;

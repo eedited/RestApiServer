@@ -8,6 +8,9 @@ import connectRedis from 'connect-redis';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import hpp from 'hpp';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
 
 import checkEnv from './checkEnv';
 import passportConfig from './passport';
@@ -49,6 +52,9 @@ if (process.env.NODE_ENV === 'production') {
     app.use(helmet({ contentSecurityPolicy: false }));
     app.use(hpp());
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const swaggerSpec: any = YAML.load(path.join(__dirname, './swagger.yaml'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(morgan(morganOption));
 app.use('/', express.static('public'));

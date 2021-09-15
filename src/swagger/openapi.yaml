@@ -1,0 +1,171 @@
+openapi: '3.0.0'
+info:
+  version: 0.4.0
+  title: eedited API docs
+  description: eedited의 API 문서입니다
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:3000/
+paths:
+  /auth/signup: 
+    $ref: './auth.yaml#/~1auth~1signup'
+  /auth/signup/email:
+    $ref: './auth.yaml#/~1auth~1signup~1email'
+  /auth/check:
+    $ref: './auth.yaml#/~1auth~1check'
+  /auth/login:
+    $ref: './auth.yaml#/~1auth~1login'
+  /auth/logout:
+    $ref: './auth.yaml#/~1auth~1logout'
+  /auth/find/id:
+    $ref: './auth.yaml#/~1auth~1find~1id'
+  /auth/find/password:
+    $ref: './auth.yaml#/~1auth~1find~1password'
+  /auth/change/password:
+    $ref: './auth.yaml#/~1auth~1change~1password'
+  /video/:
+    $ref: './video.yaml#/~1video~1'
+  /video/sort/latest:
+    $ref: './video.yaml#/~1video~1sort~1latest'
+  /video/sort/thumbup:
+    $ref: './video.yaml#/~1video~1sort~1thumbup'
+  /video/upload:
+    $ref: './video.yaml#/~1video~1upload'
+  /video/getTags:
+    $ref: './video.yaml#/~1video~1getTags'
+  /video/{videoId}:
+    $ref: './video.yaml#/~1video~1{videoId}'
+  /video/{videoId}/like:
+    $ref: './video.yaml#/~1video~1{videoId}~1like'
+  /video/{videoId}/delete:
+    $ref: './video.yaml#/~1video~1{videoId}~1delete'
+  /video/{userId}/list:
+    $ref: './video.yaml#/~1video~1{userId}~1list'
+  /user/{userId}/follow:
+    $ref: './user.yaml#/~1user~1{userId}~1follow'
+  /user/{userId}:
+    $ref: './user.yaml#/~1user~1{userId}'
+components:
+  schemas:
+    User:                       
+      type: object
+      properties:
+        userId:
+          type: string
+        password:
+          type: string
+        birthday:
+          type: string
+          format: date
+        nickname:
+          type: string
+        email:
+          type: string
+          format: email
+        profilePicture:
+          type: string
+          format: uri
+        followerCnt:
+          type: integer
+          minimum: 0
+        uploadVideoCnt:
+          type: integer
+          minimum: 0
+        proTag:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        uploader:
+          type: string
+        title:
+          type: string
+        discription:
+          type: string
+        url:
+          type: string
+          format: uri
+        thumbnail:
+          type: string
+          format: uri
+        likeCnt:
+          type: integer
+          minimum: 0
+        viewCnt:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+  responses:
+    successResponse:
+      description: successful request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+    routerErrorResponse:
+      description: router error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string
+    unauthorizedResponse:
+      description: unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string
+    badRequestResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string
+    notFoundResponse:
+      description: 404 not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string
+    forbiddenResponse:
+      description: not allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string

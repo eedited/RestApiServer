@@ -1,0 +1,273 @@
+/auth/signup:
+  post:
+    tags: 
+      - /auth
+    summary: SignUp
+    requestBody:
+      description: need user's personal info
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              password:
+                type: string
+              email:
+                type: string
+                format: email
+              birthday:
+                type: string
+                format: date
+              nickname:
+                type: string
+              profilePicture:
+                type: string
+                format: uri
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: '/auth/signup - DB Error : Checks DB Connection or CRUD'
+
+/auth/signup/email:
+  get:
+    tags: 
+      - /auth
+    summary:
+      Send authentication number for membership.
+    parameters:
+      - in : query
+        name: email
+        schema:
+          type: string
+          format: email
+        description: user's email
+    responses:
+      '200':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    randomNum:
+                      type: integer
+                      minimum: 10000
+                      maximum: 99999
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /auth/mail - gmail err
+
+/auth/check:
+  get:
+    tags:
+      - /auth
+    summary:
+      return loggedIn user's info
+    responses:
+      '200':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/User'
+
+/auth/login:
+  post:
+    tags:
+      - /auth
+    summary: login router
+    requestBody:
+      description: user's ID and passwd
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              password:
+                type: string
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '401':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/unauthorizedResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /auth/login - Unregistered user or incorrect password
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /auth/login - Passport Error
+
+/auth/logout:
+  get:
+    tags:
+      - /auth
+    summary: logout router
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+
+/auth/find/id:
+  post:
+    tags:
+      - /auth
+    summary: find user's ID router
+    requestBody:
+      description: user's email
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                format: email
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '401':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/unauthorizedResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: auth/find/id not exists email
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: auth/find/id router error
+
+/auth/find/password:
+  post:
+    tags:
+      - /auth
+    summary: find user's passwd router
+    requestBody:
+      description: user's ID and email
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              email:
+                type: string
+                format: email
+    responses:
+      '200':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    password:
+                      type: string
+      '401':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/unauthorizedResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /auth/find/password incorrect email
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /auth/find/password server error
+
+/auth/change/password:
+  post:
+    tags:
+      - /auth
+    summary: change password router
+    requestBody:
+      description: user's ID and new passwd
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+              newpassword:
+                type: string
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /auth/change/password server err

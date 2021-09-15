@@ -35,7 +35,9 @@
         "test": "cross-env NODE_ENV=test ./node_modules/.bin/jest --setupFiles dotenv/config --detectOpenHandles --forceExit",
         "test:cover": "./node_modules/.bin/jest --coverage --setupFiles dotenv/config --detectOpenHandles --forceExit",
         "lint": "./node_modules/.bin/eslint . --ext .ts",
-        "lint:staged": "./node_modules/.bin/lint-staged"
+        "lint:staged": "./node_modules/.bin/lint-staged",
+        "api-docs": "swagger-cli bundle ./src/swagger/openapi.yaml --outfile src/swagger.yaml --type yaml",
+        "predev": "npm run api-docs"
     },
     "author": "eedited",
     "license": "ISC",
@@ -60,7 +62,10 @@
         "passport-local": "1.0.0",
         "pm2": "5.1.0",
         "redis": "3.1.2",
-        "winston": "3.3.3"
+        "swagger-cli": "^4.0.4",
+        "swagger-ui-express": "^4.1.6",
+        "winston": "3.3.3",
+        "yamljs": "^0.3.0"
     },
     "devDependencies": {
         "@types/bcrypt": "5.0.0",
@@ -79,7 +84,9 @@
         "@types/passport-local": "1.0.34",
         "@types/redis": "2.8.31",
         "@types/supertest": "^2.0.11",
+        "@types/swagger-ui-express": "^4.1.3",
         "@types/validator": "13.6.3",
+        "@types/yamljs": "^0.2.31",
         "@typescript-eslint/eslint-plugin": "4.28.2",
         "@typescript-eslint/parser": "^4.28.2",
         "eslint": "7.30.0",

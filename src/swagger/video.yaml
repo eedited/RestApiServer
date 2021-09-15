@@ -1,0 +1,558 @@
+/video/:
+  get:
+    tags:
+      - /video
+    summary: All videos are brought in units of 20.
+    parameters:
+      - in : query
+        name: pageStr
+        schema:
+          type: string
+        description: pageNum
+    responses:
+      '200 and not loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string
+      '200 and loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    WhatVideoUpload:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          liker:
+                            type: string
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string
+      '400':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/${pageStr} not valid input                  
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/${pageStr} router error
+
+/video/sort/latest:
+  get:
+    tags:
+      - /video
+    summary: sort all videos in the latest order
+    parameters:
+      - in : query
+        name: pageStr
+        schema:
+          type: string
+        description: pageNum
+    responses:
+      '200 and not loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string
+      '200 and loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    WhatVideoUpload:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          liker:
+                            type: string
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string  
+      '400':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/${pageStr} not valid input
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/sort/latest router error
+
+/video/sort/thumbup:
+  get:
+    tags:
+      - /video
+    summary: sort all videos in the thumbup order
+    parameters:
+      - in : query
+        name: pageStr
+        schema:
+          type: string
+        description: pageNum
+    responses:
+      '200 and not loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string
+      '200 and loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    WhatVideoUpload:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          liker:
+                            type: string
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string  
+      '400':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/${pageStr} not valid input
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/sort/thumbup router error
+                    
+/video/upload:
+  post:
+    tags:
+      - /video
+    summary: video upload router
+    requestBody:
+      description: video's info
+      required: true
+      content:
+        application/json:
+          schema:
+            allOf:
+              - type: object
+                properties:
+                  title:
+                    type: string
+                  discription:
+                    type: string
+                  url:
+                    type: string
+                    format: uri
+                  thumbnail:
+                    type: string
+                    format: uri
+                  tags:
+                    type: array
+                    items:
+                      type: string
+              - $ref: './openapi.yaml#/components/schemas/User'
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/upload router error
+
+/video/getTags:
+  post:
+    tags:
+      - /video
+    summary: Create tags using thumbnails
+    requestBody:
+      description: thumbnail's url
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              thumbnail:
+                type: string
+                format: uri
+    responses:
+      '200':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    type: string
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/getTags router error
+
+/video/{videoId}:
+  get:
+    tags:
+      - /video
+    summary: It brings up one video corresponding to {videoId}.
+    parameters:
+      - in : path
+        name: videoId
+        schema:
+          type: string
+          format: uuid
+        description: videoId
+    responses:
+      '200 and not loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string
+                    WhatVideoUploadTag:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          tagName:
+                            type: string
+      '200 and loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string
+                        followTo:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              followerId:
+                                type: string
+                    WhatVideoUploadTag:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          tagName:
+                            type: string
+      '404':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/notFoundResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/:videoId not exists video
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/upload router error
+
+/video/{videoId}/like:
+  patch:
+    tags: 
+      - /video
+    summary:
+      video like router
+    parameters:
+      - in : path
+        name: videoId
+        schema:
+          type: string
+          format: uuid
+        description: videoId
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '404':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/notFoundResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /:videoId/like user undefind or video not exists
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /:videoId/like router error
+
+/video/{videoId}/delete:
+  get:
+    tags:
+      - /video
+    summary: delete video router
+    parameters:
+      - in : path
+        name: videoId
+        schema:
+          type: string
+          format: uuid
+        description: videoId
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '400':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/delete/:videoId not exists video or not permissioned user
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/:videoId/delete router error
+
+/video/{userId}/list:
+  get:
+    tags:
+      - /video
+    summary: It brings up a list of videos uploaded by userId
+    parameters:
+      - in : path
+        name: userId
+        schema:
+          type: string
+        description: userId
+      - in : query
+        name: pageStr
+        schema:
+          type: string
+        description: pageNum
+    responses:
+      '200 and not loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string
+      '200 and loggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  $ref: './openapi.yaml#/components/schemas/Video'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    User:
+                      type: object
+                      properties:
+                        nickname:
+                          type: string
+                    WhatVideoUpload:
+                      type: list
+                      items:
+                        type: object
+                        properties:
+                          liker:
+                            type: string
+      '400':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/${pageStr} not valid input      
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /video/:userId/list router error

@@ -1,0 +1,1087 @@
+openapi: 3.0.0
+info:
+  version: 0.4.0
+  title: eedited API docs
+  description: eedited의 API 문서입니다
+  license:
+    name: MIT
+servers:
+  - url: 'http://localhost:3000/'
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - /auth
+      summary: SignUp
+      requestBody:
+        description: need user's personal info
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                birthday:
+                  type: string
+                  format: date
+                nickname:
+                  type: string
+                profilePicture:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/auth/signup - DB Error : Checks DB Connection or CRUD'
+  /auth/signup/email:
+    get:
+      tags:
+        - /auth
+      summary: Send authentication number for membership.
+      parameters:
+        - in: query
+          name: email
+          schema:
+            type: string
+            format: email
+          description: user's email
+      responses:
+        '200':
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      randomNum:
+                        type: integer
+                        minimum: 10000
+                        maximum: 99999
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /auth/mail - gmail err
+  /auth/check:
+    get:
+      tags:
+        - /auth
+      summary: return loggedIn user's info
+      responses:
+        '200':
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/User'
+  /auth/login:
+    post:
+      tags:
+        - /auth
+      summary: login router
+      requestBody:
+        description: user's ID and passwd
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '401':
+          allOf:
+            - $ref: '#/components/responses/unauthorizedResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /auth/login - Unregistered user or incorrect password
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /auth/login - Passport Error
+  /auth/logout:
+    get:
+      tags:
+        - /auth
+      summary: logout router
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+  /auth/find/id:
+    post:
+      tags:
+        - /auth
+      summary: find user's ID router
+      requestBody:
+        description: user's email
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '401':
+          allOf:
+            - $ref: '#/components/responses/unauthorizedResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: auth/find/id not exists email
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: auth/find/id router error
+  /auth/find/password:
+    post:
+      tags:
+        - /auth
+      summary: find user's passwd router
+      requestBody:
+        description: user's ID and email
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      password:
+                        type: string
+        '401':
+          allOf:
+            - $ref: '#/components/responses/unauthorizedResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /auth/find/password incorrect email
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /auth/find/password server error
+  /auth/change/password:
+    post:
+      tags:
+        - /auth
+      summary: change password router
+      requestBody:
+        description: user's ID and new passwd
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                newpassword:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /auth/change/password server err
+  /video/:
+    get:
+      tags:
+        - /video
+      summary: All videos are brought in units of 20.
+      parameters:
+        - in: query
+          name: pageStr
+          schema:
+            type: string
+          description: pageNum
+      responses:
+        '400':
+          allOf:
+            - $ref: '#/components/responses/badRequestResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/${pageStr} not valid input'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/${pageStr} router error'
+        200 and not loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+        200 and loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      WhatVideoUpload:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            liker:
+                              type: string
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+  /video/sort/latest:
+    get:
+      tags:
+        - /video
+      summary: sort all videos in the latest order
+      parameters:
+        - in: query
+          name: pageStr
+          schema:
+            type: string
+          description: pageNum
+      responses:
+        '400':
+          allOf:
+            - $ref: '#/components/responses/badRequestResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/${pageStr} not valid input'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /video/sort/latest router error
+        200 and not loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+        200 and loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      WhatVideoUpload:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            liker:
+                              type: string
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+  /video/sort/thumbup:
+    get:
+      tags:
+        - /video
+      summary: sort all videos in the thumbup order
+      parameters:
+        - in: query
+          name: pageStr
+          schema:
+            type: string
+          description: pageNum
+      responses:
+        '400':
+          allOf:
+            - $ref: '#/components/responses/badRequestResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/${pageStr} not valid input'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /video/sort/thumbup router error
+        200 and not loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+        200 and loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      WhatVideoUpload:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            liker:
+                              type: string
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+  /video/upload:
+    post:
+      tags:
+        - /video
+      summary: video upload router
+      requestBody:
+        description: video's info
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  properties:
+                    title:
+                      type: string
+                    discription:
+                      type: string
+                    url:
+                      type: string
+                      format: uri
+                    thumbnail:
+                      type: string
+                      format: uri
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                - $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /video/upload router error
+  /video/getTags:
+    post:
+      tags:
+        - /video
+      summary: Create tags using thumbnails
+      requestBody:
+        description: thumbnail's url
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                thumbnail:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: array
+                    items:
+                      type: string
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /video/getTags router error
+  '/video/{videoId}':
+    get:
+      tags:
+        - /video
+      summary: 'It brings up one video corresponding to {videoId}.'
+      parameters:
+        - in: path
+          name: videoId
+          schema:
+            type: string
+            format: uuid
+          description: videoId
+      responses:
+        '404':
+          allOf:
+            - $ref: '#/components/responses/notFoundResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/:videoId not exists video'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /video/upload router error
+        200 and not loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+                      WhatVideoUploadTag:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            tagName:
+                              type: string
+        200 and loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+                          followTo:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                followerId:
+                                  type: string
+                      WhatVideoUploadTag:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            tagName:
+                              type: string
+  '/video/{videoId}/like':
+    patch:
+      tags:
+        - /video
+      summary: video like router
+      parameters:
+        - in: path
+          name: videoId
+          schema:
+            type: string
+            format: uuid
+          description: videoId
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '404':
+          allOf:
+            - $ref: '#/components/responses/notFoundResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/:videoId/like user undefind or video not exists'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/:videoId/like router error'
+  '/video/{videoId}/delete':
+    get:
+      tags:
+        - /video
+      summary: delete video router
+      parameters:
+        - in: path
+          name: videoId
+          schema:
+            type: string
+            format: uuid
+          description: videoId
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '400':
+          allOf:
+            - $ref: '#/components/responses/badRequestResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/delete/:videoId not exists video or not permissioned user'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/:videoId/delete router error'
+  '/video/{userId}/list':
+    get:
+      tags:
+        - /video
+      summary: It brings up a list of videos uploaded by userId
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          description: userId
+        - in: query
+          name: pageStr
+          schema:
+            type: string
+          description: pageNum
+      responses:
+        '400':
+          allOf:
+            - $ref: '#/components/responses/badRequestResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/${pageStr} not valid input'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/video/:userId/list router error'
+        200 and not loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+        200 and loggedIn:
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Video'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      User:
+                        type: object
+                        properties:
+                          nickname:
+                            type: string
+                      WhatVideoUpload:
+                        type: list
+                        items:
+                          type: object
+                          properties:
+                            liker:
+                              type: string
+  '/user/{userId}/follow':
+    patch:
+      tags:
+        - /user
+      summary: loggedIn user follows userId
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          description: userId
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '404':
+          allOf:
+            - $ref: '#/components/responses/notFoundResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/:userId/like user not found'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/user/${userId}/follow router error'
+  '/user/{userId}':
+    get:
+      tags:
+        - /user
+      summary: 'get a user''s all of info with videos, tags, follows, etc.'
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          description: userId
+      responses:
+        '200':
+          allOf:
+            - $ref: '#/components/responses/successResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      userId:
+                        type: string
+                      password:
+                        type: string
+                      birthday:
+                        type: string
+                        format: date
+                      nickname:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      profilePicture:
+                        type: string
+                        format: uri
+                      followerCnt:
+                        type: integer
+                        minimum: 0
+                      uploadVideoCnt:
+                        type: integer
+                        minimum: 0
+                      proTag:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+                      deletedAt:
+                        type: string
+                        format: date-time
+                      Video:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            uploader:
+                              type: string
+                            title:
+                              type: string
+                            discription:
+                              type: string
+                            url:
+                              type: string
+                              format: uri
+                            thumbnail:
+                              type: string
+                              format: uri
+                            likeCnt:
+                              type: integer
+                              minimum: 0
+                            viewCnt:
+                              type: integer
+                              minimum: 0
+                            createdAt:
+                              type: string
+                              format: date-time
+                            updatedAt:
+                              type: string
+                              format: date-time
+                            deletedAt:
+                              type: string
+                              format: date-time
+                            WhoVideoUploadTag:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  tagName:
+                                    type: string
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/user/${userId} router error'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        userId:
+          type: string
+        password:
+          type: string
+        birthday:
+          type: string
+          format: date
+        nickname:
+          type: string
+        email:
+          type: string
+          format: email
+        profilePicture:
+          type: string
+          format: uri
+        followerCnt:
+          type: integer
+          minimum: 0
+        uploadVideoCnt:
+          type: integer
+          minimum: 0
+        proTag:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        uploader:
+          type: string
+        title:
+          type: string
+        discription:
+          type: string
+        url:
+          type: string
+          format: uri
+        thumbnail:
+          type: string
+          format: uri
+        likeCnt:
+          type: integer
+          minimum: 0
+        viewCnt:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+  responses:
+    successResponse:
+      description: successful request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: null
+    routerErrorResponse:
+      description: router error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string
+    unauthorizedResponse:
+      description: unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string
+    badRequestResponse:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string
+    notFoundResponse:
+      description: 404 not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string
+    forbiddenResponse:
+      description: not allowed
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              info:
+                type: string

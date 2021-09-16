@@ -271,3 +271,51 @@
                     info:
                       type: string
                       example: /auth/change/password server err
+
+/auth/{userId}:
+  delete:
+    tags:
+      - /auth
+    summary: withdraw user
+    parameters:
+      - in : path
+        name: userId
+        schema:
+          type: string
+        description: user's Id
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '400':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: already not loggedIn
+      '401':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/unauthorizedResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /auth/:userId Unauthorized
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /auth/:userId server error

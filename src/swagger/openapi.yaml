@@ -24,6 +24,8 @@ paths:
     $ref: './auth.yaml#/~1auth~1find~1password'
   /auth/change/password:
     $ref: './auth.yaml#/~1auth~1change~1password'
+  /auth/{userId}:
+    $ref: './auth.yaml#/~1auth~1{userId}'
   /video/:
     $ref: './video.yaml#/~1video~1'
   /video/sort/latest:

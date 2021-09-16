@@ -172,25 +172,36 @@ router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, 
     }
 });
 
-// router.delete('/:userId', isLoggedIn, async (req: Request, res: Response) => {
-//     const { userId }: typeof req.params = req.params;
-//     const user: Express.User = req.user as Express.User;
-//     try {
-//         if (userId !== user.userId) {
-//             return res.status(401).json({
-//                 info: '/auth/:userId Unauthorized',
-//             });
-//         }
-//         await DB.prisma.user.delete({
-//             where: { userId },
-//         });
-//         return res.redirect('/logout');
-//     }
-//     catch (err) {
-//         return res.status(500).json({
-//             info: '/auth/:userId server error',
-//         });
-//     }
-// });
+router.delete('/:userId', isLoggedIn, async (req: Request, res: Response) => {
+    const { userId }: typeof req.params = req.params;
+    const user: Express.User = req.user as Express.User;
+    try {
+        if (userId !== user.userId) {
+            return res.status(401).json({
+                info: '/auth/:userId Unauthorized',
+            });
+        }
+        await DB.prisma.user.delete({
+            where: { userId },
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        req.session.destroy((err: any) => {
+            if (err) {
+                res.status(400).json({
+                    info: 'already not loggedIn',
+                });
+            }
+            else {
+                res.status(200).json({});
+            }
+        });
+        return res;
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/auth/:userId server error',
+        });
+    }
+});
 
 export default router;

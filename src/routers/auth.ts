@@ -184,8 +184,7 @@ router.delete('/:userId', isLoggedIn, async (req: Request, res: Response) => {
         await DB.prisma.user.delete({
             where: { userId },
         });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        req.session.destroy((err: any) => {
+        req.session.destroy((err: Error) => {
             if (err) {
                 res.status(400).json({
                     info: 'already not loggedIn',

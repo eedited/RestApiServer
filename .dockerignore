@@ -6,6 +6,7 @@ node_modules
 prisma
 public
 src
+swagger.yaml
 tests
 
 .env

@@ -1,6 +1,6 @@
 {
     "name": "eedited_rest_api_server",
-    "version": "0.3.2",
+    "version": "0.4.0",
     "description": "SW Maestro 12th Team.eedited's Rest API Server",
     "main": "index.js",
     "engines": {
@@ -52,6 +52,8 @@
         "dotenv": "10.0.0",
         "express": "4.17.1",
         "express-session": "1.17.2",
+        "google-auth-library": "^7.9.2",
+        "googleapis": "^87.0.0",
         "helmet": "4.6.0",
         "hpp": "0.2.3",
         "morgan": "1.10.0",

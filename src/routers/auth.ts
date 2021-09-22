@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt, { hash } from 'bcrypt';
 import passport from 'passport';
 import { User } from '@prisma/client';
+import { signupValidation } from '../services/mailContent';
 import { isLoggedIn, isNotLoggedIn, checkPassword } from '../middlewares/auth';
 import sendEmail from '../services/sendEmail';
 import DB from '../db';
@@ -23,6 +24,8 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
 
         const salt: number = Number(process.env.BCRYPT_SALT);
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
+        const randomToken: string = Math.random().toString(36).slice(2);
+        const hashedToken: string = await bcrypt.hash(randomToken, salt);
         await DB.prisma.user.create({
             data: {
                 userId,
@@ -31,9 +34,11 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
                 email,
                 nickname,
                 profilePicture,
+                emailToken: hashedToken,
+                description: '',
             },
         });
-
+        await sendEmail(email, '[eedited] 회원가입을 위한 메일 인증', (hashedToken));
         return res.status(200).json({});
     }
     catch (err) {
@@ -42,7 +47,32 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         });
     }
 });
-
+router.post('/signup/emailValidation', isNotLoggedIn, async (req: Request, res: Response) => {
+    const { token }: typeof req.body = req.body;
+    try {
+        if (!token) {
+            return res.status(400).json({
+                info: '/auth/signup/emailValidation : need token as input',
+            });
+        }
+        const user: User|null = await DB.prisma.user.findFirst({ where: { emailToken: token } });
+        if (!user) {
+            return res.status(403).json({
+                info: '/auth/signup/emailValidation : invalid token',
+            });
+        }
+        await DB.prisma.user.update({
+            where: { userId: user.userId },
+            data: { emailToken: '' },
+        });
+        return res.status(200).json({});
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/auth/signup/emailValidation : Check DB Connection or CRUD',
+        });
+    }
+});
 router.get('/signup/email', isNotLoggedIn, async (req: Request, res: Response) => {
     try {
         const email: string = req.query.email as string;

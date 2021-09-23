@@ -7,7 +7,7 @@ export default async function sendEmail(email: string, subject: string, Contents
     const REDIRECT_URI: string = 'https://developers.google.com/oauthplayground';
     const oAuth2Client: OAuth2Client = new google.auth.OAuth2(process.env.OAUTH_CLIENT_ID, process.env.OAUTH_CLIENT_SECRET, REDIRECT_URI);
     oAuth2Client.setCredentials({ refresh_token: process.env.OAUTH_REFRESH_TOKEN });
-    const accessToken: string|null|undefined = await (await oAuth2Client.getAccessToken()).token;
+    const accessToken: string|null|undefined = (await oAuth2Client.getAccessToken()).token;
     if (!accessToken) return new Promise<string>(() => '');
 
     const transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> = nodemailer.createTransport({

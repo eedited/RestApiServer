@@ -190,13 +190,13 @@ router.get('/sort/thumbup', async (req: Request, res: Response) => {
 });
 
 router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
-    const { title, discription, url, thumbnail, tags }: Video&{tags: string[]} = req.body;
+    const { title, description, url, thumbnail, tags }: Video&{tags: string[]} = req.body;
     const user: Express.User = req.user as Express.User;
     try {
         const uploadedVideo: Video = await DB.prisma.video.create({
             data: {
                 title,
-                discription,
+                description,
                 url,
                 thumbnail,
                 uploader: user.userId,
@@ -224,7 +224,7 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
     }
 });
 router.patch('/upload', isLoggedIn, async (req: Request, res: Response) => {
-    const { id, title, discription, url, thumbnail, tags }: Video&{tags: string[]} = req.body;
+    const { id, title, description, url, thumbnail, tags }: Video&{tags: string[]} = req.body;
     const user: Express.User = req.user as Express.User;
     try {
         const uploadedVideo: Video = await DB.prisma.video.update({
@@ -236,7 +236,7 @@ router.patch('/upload', isLoggedIn, async (req: Request, res: Response) => {
             },
             data: {
                 title,
-                discription,
+                description,
                 url,
                 thumbnail,
                 uploader: user.userId,

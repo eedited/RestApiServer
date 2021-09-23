@@ -38,7 +38,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
                 description: '',
             },
         });
-        await sendEmail(email, '[eedited] 회원가입을 위한 메일 인증', (hashedToken));
+        await sendEmail(email, '[eedited] 회원가입을 위한 메일 인증', signupValidation(hashedToken));
         return res.status(200).json({});
     }
     catch (err) {
@@ -47,7 +47,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         });
     }
 });
-router.post('/signup/emailValidation', isNotLoggedIn, async (req: Request, res: Response) => {
+router.post('/signup/emailValidation', async (req: Request, res: Response) => {
     const { token }: typeof req.body = req.body;
     try {
         if (!token) {
@@ -73,23 +73,25 @@ router.post('/signup/emailValidation', isNotLoggedIn, async (req: Request, res: 
         });
     }
 });
-router.get('/signup/email', isNotLoggedIn, async (req: Request, res: Response) => {
-    try {
-        const email: string = req.query.email as string;
-        if (email === undefined || email === '') {
-            return res.status(400).json({
-                info: '/auth/signup/email - querystring have to contain \'email\'',
-            });
-        }
-        const randomNum: string = Math.random().toString().slice(2, 7);
-        await sendEmail(email, '회원가입을 위한 인증번호를 입력해주세요', randomNum);
-        return res.status(200).json({
-            randomNum,
+router.get('/signup/email', isLoggedIn, async (req: Request, res: Response) => {
+    const { user }: Request = req;
+    if (!user) {
+        return res.status(404).json({
+            info: '/auth/signup/email : need login',
         });
+    }
+    if (user.emailToken === '') {
+        return res.status(403).json({
+            info: '/auth/signup/email : already authed',
+        });
+    }
+    try {
+        await sendEmail(user.email, '[eedited] 회원가입을 위한 메일 인증', signupValidation(user.emailToken));
+        return res.status(200).json({});
     }
     catch (err) {
         return res.status(500).json({
-            info: '/auth/mail - gmail err',
+            info: '/auth/email - gmail err',
         });
     }
 });

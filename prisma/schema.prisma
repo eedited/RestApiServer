@@ -48,7 +48,7 @@ model Video {
     id                 String       @unique @default(uuid())
     uploader           String       @db.VarChar(50)
     title              String       @db.VarChar(50)
-    discription        String       @db.Text
+    description        String       @db.Text
     url                String       @db.VarChar(200)
     thumbnail          String       @db.VarChar(200)
     likeCnt            Int          @default(0)

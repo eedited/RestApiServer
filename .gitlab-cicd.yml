@@ -1,0 +1,13 @@
+stages:
+    - build
+
+build:
+    stage: build
+    script:
+        - echo "build docker image"
+        - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 684732954876.dkr.ecr.ap-northeast-2.amazonaws.com
+        - docker build --tag rest-api-server:latest .
+        - docker tag rest-api-server:latest 684732954876.dkr.ecr.ap-northeast-2.amazonaws.com/rest-api-server:latest
+        - docker push 684732954876.dkr.ecr.ap-northeast-2.amazonaws.com/rest-api-server:latest
+    rules:
+        - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

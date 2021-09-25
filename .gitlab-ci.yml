@@ -38,6 +38,7 @@ publish:
     before_script:
         - apk add --no-cache curl jq python3 py3-pip
         - pip install awscli
+        - aws ecr get-login-password
         - aws ecr get-login-password | docker login --username AWS --password-stdin $DOCKER_REGISTRY
         - aws --version
         - docker info

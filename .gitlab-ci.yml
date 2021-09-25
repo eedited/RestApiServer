@@ -8,7 +8,9 @@ build:
     services:
         - docker:dind
     before_script:
+        - amazon-linux-extras install docker
         - aws --version
+        - docker --version
     script:
         - echo "build docker image"
         - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 684732954876.dkr.ecr.ap-northeast-2.amazonaws.com

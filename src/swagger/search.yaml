@@ -1,0 +1,228 @@
+/search/:
+  get:
+    tags:
+      - /search
+    summary: search router
+    description:
+      videos의 liker는 현재 로그인한 유저가 좋아한 영상이면 로그인한 유저의 아이디가 있고 그 외에는 빈 배열<br>
+      users의 followerId도 같은 원리이다.<br>
+      그리고 동영상목록 뱉는 라우터처럼 얘도 유저랑 영상 한 페이지당 각각 20개씩 뱉는다.
+    parameters:
+      - in : path
+        name: toFind
+        schema:
+          type: string
+        description: string to find
+      - in : path
+        name: pageStr
+        schema:
+          type: string
+        description: page Number
+    responses:
+      '200 and LoggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    users:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          userId:
+                            type: string
+                          password:
+                            type: string
+                          birthday:
+                            type: string
+                            format: date
+                          nickname:
+                            type: string
+                          email:
+                            type: string
+                            format: email
+                          profilePicture:
+                            type: string
+                            format: uri
+                          followerCnt:
+                            type: integer
+                            minimum: 0
+                          uploadVideoCnt:
+                            type: integer
+                            minimum: 0
+                          proTag:
+                            type: boolean
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                          deletedAt:
+                            type: string
+                            format: date-time
+                          followTo:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                followerId:
+                                  type: string
+                    videos:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          uploader:
+                            type: string
+                          title:
+                            type: string
+                          discription:
+                            type: string
+                          url:
+                            type: string
+                            format: uri
+                          thumbnail:
+                            type: string
+                            format: uri
+                          likeCnt:
+                            type: integer
+                            minimum: 0
+                          viewCnt:
+                            type: integer
+                            minimum: 0
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                          deletedAt:
+                            type: string
+                            format: date-time
+                          WhatVideoUpload:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                liker:
+                                  type: string
+                          User:
+                            type: object
+                            properties:
+                              nickname:
+                                type: string
+      
+      '200 and not LoggedIn':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/successResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    users:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          userId:
+                            type: string
+                          password:
+                            type: string
+                          birthday:
+                            type: string
+                            format: date
+                          nickname:
+                            type: string
+                          email:
+                            type: string
+                            format: email
+                          profilePicture:
+                            type: string
+                            format: uri
+                          followerCnt:
+                            type: integer
+                            minimum: 0
+                          uploadVideoCnt:
+                            type: integer
+                            minimum: 0
+                          proTag:
+                            type: boolean
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                          deletedAt:
+                            type: string
+                            format: date-time
+                    videos:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          uploader:
+                            type: string
+                          title:
+                            type: string
+                          discription:
+                            type: string
+                          url:
+                            type: string
+                            format: uri
+                          thumbnail:
+                            type: string
+                            format: uri
+                          likeCnt:
+                            type: integer
+                            minimum: 0
+                          viewCnt:
+                            type: integer
+                            minimum: 0
+                          createdAt:
+                            type: string
+                            format: date-time
+                          updatedAt:
+                            type: string
+                            format: date-time
+                          deletedAt:
+                            type: string
+                            format: date-time
+                          User:
+                            type: object
+                            properties:
+                              nickname:
+                                type: string
+      '400':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /search/ page not valid input
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: /search/ router error

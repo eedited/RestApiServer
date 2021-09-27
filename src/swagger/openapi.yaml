@@ -48,6 +48,8 @@ paths:
     $ref: './user.yaml#/~1user~1{userId}~1follow'
   /user/{userId}:
     $ref: './user.yaml#/~1user~1{userId}'
+  /search/:
+    $ref: './search.yaml#/~1search~1'
 components:
   schemas:
     User:                       

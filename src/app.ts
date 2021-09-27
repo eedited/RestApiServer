@@ -22,6 +22,7 @@ import indexRouter from './routers';
 import authRouter from './routers/auth';
 import videoRouter from './routers/video';
 import userRouter from './routers/user';
+import searchRouter from './routers/search';
 
 // Check Which each env Variable is set or not
 checkEnv();
@@ -83,6 +84,7 @@ app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/video', videoRouter);
 app.use('/user', userRouter);
+app.use('/search', searchRouter);
 
 /**
  * Error

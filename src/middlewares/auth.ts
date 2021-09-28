@@ -22,12 +22,18 @@ export const isNotLoggedIn: expressMiddleware = (req: Request, res: Response, ne
 };
 
 export const checkPassword: expressMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const { userId, password }: User = req.body;
+    const { password }: typeof req.body = req.body;
+    const { user }: Request = req;
     try {
-        const user: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
+        // const user: (User | null) = await DB.prisma.user.findUnique({ where: { userId } });
+        // if (!user) {
+        //     return res.status(401).json({
+        //         info: 'Unregistered user',
+        //     });
+        // }
         if (!user) {
-            return res.status(401).json({
-                info: 'Unregistered user',
+            return res.status(404).json({
+                info: 'there is no user',
             });
         }
         const isPwCorrect: boolean = bcrypt.compareSync(password, user.password);
@@ -42,6 +48,5 @@ export const checkPassword: expressMiddleware = async (req: Request, res: Respon
             info: 'checkPassword Middleware',
         });
     }
-
     return next();
 };

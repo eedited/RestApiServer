@@ -190,3 +190,34 @@ router.get('/:userId', async (req: Request, res: Response) => {
 });
 
 export default router;
+
+router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
+    const { description, nickname }: typeof req.body = req.body;
+    const user: Express.User = req.user as Express.User;
+    try {
+        if (user.nickname !== nickname) { // nickname이 변경되었을 때.
+            const nicknamePromise: Promise<User | null> = DB.prisma.user.findFirst({ where: { nickname, deletedAt: null } });
+            const duplicateUser: (User|null) = await nicknamePromise;
+            if (duplicateUser) {
+                return res.status(404).json({
+                    info: '/user/change - DB : exists User of (nickname)',
+                });
+            }
+        }
+        await DB.prisma.user.update({
+            where: {
+                userId: user.userId,
+            },
+            data: {
+                description,
+                nickname,
+            },
+        });
+        return res.status(200).json({});
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/user/change router error',
+        });
+    }
+});

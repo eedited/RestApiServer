@@ -73,7 +73,7 @@ router.get('/:userId', async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
     const { user }: Request = req;
     try {
-        let userInfo: (User & { Video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; })[]; followFrom: { followingId: string; }[]; }) | null;
+        let userInfo: (User & { Video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; WhatVideoUpload: { liker: string; }[]; })[]; followFrom: { followingId: string; }[]; followTo: { followerId: string; }[]; }) | (User & { Video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; })[]; followFrom: { followingId: string; }[]; }) | null;
         if (user) {
             userInfo = await DB.prisma.user.findFirst({
                 where: {
@@ -114,6 +114,15 @@ router.get('/:userId', async (req: Request, res: Response) => {
                         },
                         select: {
                             followingId: true,
+                        },
+                    },
+                    followTo: {
+                        where: {
+                            followerId: user.userId,
+                            deletedAt: null,
+                        },
+                        select: {
+                            followerId: true,
                         },
                     },
                 },

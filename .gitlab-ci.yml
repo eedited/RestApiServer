@@ -1,30 +1,8 @@
-# image: amazon/aws-cli
-
-# build:
-#     stage: build
-#     image:
-#         name: amazon/aws-cli
-#         entrypoint: ['']
-#     services:
-#         - docker:dind
-#     before_script:
-#         - amazon-linux-extras install docker
-#         - aws --version
-#         - docker --version
-#     script:
-#         - echo "build docker image"
-#         - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 684732954876.dkr.ecr.ap-northeast-2.amazonaws.com
-#         - docker build --tag rest-api-server:latest .
-#         - docker tag rest-api-server:latest 684732954876.dkr.ecr.ap-northeast-2.amazonaws.com/rest-api-server:latest
-#         - docker push 684732954876.dkr.ecr.ap-northeast-2.amazonaws.com/rest-api-server:latest
-#     rules:
-#         - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-
-# Simple example of CI to build a Docker container and push it to Amazon ECR
 variables:
     DOCKER_REGISTRY: 684732954876.dkr.ecr.ap-northeast-2.amazonaws.com
     AWS_DEFAULT_REGION: ap-northeast-2
     APP_NAME: rest-api-server
+    APP_TAG: latest
     DOCKER_HOST: tcp://docker:2375
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ''
@@ -32,19 +10,19 @@ variables:
 publish:
     stage: build
     image:
-        name: docker:latest
+        name: amazon/aws-cli
+        entrypoint: ['']
     services:
-        - docker:19-dind
+        - docker:dind
     before_script:
-        - apk add --no-cache curl jq python3 py3-pip
-        - pip install awscli
-        - aws ecr get-login-password
-        - aws ecr get-login-password | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+        - amazon-linux-extras install docker
         - aws --version
-        - docker info
         - docker --version
     script:
-        - docker build -t $DOCKER_REGISTRY/$APP_NAME:$CI_PIPELINE_IID .
-        - docker push $DOCKER_REGISTRY/$APP_NAME:$CI_PIPELINE_IID
+        - echo "build docker image"
+        - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $DOCKER_REGISTRY
+        - docker build --tag $APP_NAME:$APP_TAG .
+        - docker tag $APP_NAME:$APP_TAG $DOCKER_REGISTRY/$APP_NAME:$APP_TAG
+        - docker push $DOCKER_REGISTRY/$APP_NAME:$APP_TAG
     rules:
         - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

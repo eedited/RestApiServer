@@ -186,13 +186,13 @@ router.post('/find/password', isNotLoggedIn, async (req: Request, res: Response)
 });
 
 router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, res: Response) => {
-    const { userId }: User = req.body;
-    const { newpassword }: {newpassword: string} = req.body;
+    const { newPassword }: typeof req.body = req.body;
+    const { user }: Request = req;
     try {
         const salt: number = Number(process.env.BCRYPT_SALT);
-        const hashedPassword: string = await bcrypt.hash(newpassword.toString(), salt);
+        const hashedPassword: string = await bcrypt.hash(newPassword.toString(), salt);
         await DB.prisma.user.update({
-            where: { userId },
+            where: { userId: user?.userId },
             data: { password: hashedPassword },
         });
         return res.status(200).json({});

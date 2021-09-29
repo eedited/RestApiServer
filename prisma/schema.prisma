@@ -14,6 +14,7 @@ model User {
     nickname       String       @unique @db.VarChar(10)
     email          String       @db.VarChar(100)
     emailToken     String       @db.VarChar(100)
+    logInType      String?      @db.VarChar(10)
     profilePicture String       @default("/public/docs/soma_logo.png") @db.VarChar(200)
     followerCnt    Int          @default(0)
     description    String       @db.Text
@@ -22,10 +23,10 @@ model User {
     createdAt      DateTime     @default(now())
     updatedAt      DateTime     @updatedAt
     deletedAt      DateTime?
-    VideoLiker     VideoLiker[]
-    Video          Video[]
     followFrom     Follower[]   @relation("followFrom")
     followTo       Follower[]   @relation("followTo")
+    Video          Video[]
+    VideoLiker     VideoLiker[]
 
     @@index([email], name: "email")
 }
@@ -42,6 +43,8 @@ model VideoLiker {
     WhatVideoUpload Video     @relation("WhatVideoUpload", fields: [videoId], references: [id])
 
     @@id([liker, uploader, videoId])
+    @@index([uploader], name: "uploader")
+    @@index([videoId], name: "videoId")
 }
 
 model Video {
@@ -57,10 +60,10 @@ model Video {
     updatedAt          DateTime     @updatedAt
     deletedAt          DateTime?
     User               User         @relation(fields: [uploader], references: [userId])
-    WhoVideoUploadTag  VideoTag[]   @relation("WhoVideoUploadTag")
-    WhatVideoUploadTag VideoTag[]   @relation("WhatVideoUploadTag")
     WhoVideoUpload     VideoLiker[] @relation("WhoVideoUpload")
     WhatVideoUpload    VideoLiker[] @relation("WhatVideoUpload")
+    WhoVideoUploadTag  VideoTag[]   @relation("WhoVideoUploadTag")
+    WhatVideoUploadTag VideoTag[]   @relation("WhatVideoUploadTag")
 
     @@id([uploader, id])
 }
@@ -76,6 +79,7 @@ model VideoTag {
     WhatVideoUploadTag Video     @relation("WhatVideoUploadTag", fields: [videoId], references: [id])
 
     @@id([videoId, uploader, tagName])
+    @@index([uploader], name: "uploader")
 }
 
 model Follower {
@@ -88,4 +92,5 @@ model Follower {
     followTo    User      @relation("followTo", fields: [followingId], references: [userId])
 
     @@id([followerId, followingId])
+    @@index([followingId], name: "followingId")
 }

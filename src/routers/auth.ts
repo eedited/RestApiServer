@@ -26,6 +26,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
         const randomToken: string = Math.random().toString(36).slice(2);
         const hashedToken: string = await bcrypt.hash(randomToken, salt);
+        await sendEmail(email, '[eedited] 회원가입을 위한 메일 인증', signupValidation(hashedToken));
         await DB.prisma.user.create({
             data: {
                 userId,
@@ -38,7 +39,6 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
                 description: '',
             },
         });
-        await sendEmail(email, '[eedited] 회원가입을 위한 메일 인증', signupValidation(hashedToken));
         return res.status(200).json({});
     }
     catch (err) {

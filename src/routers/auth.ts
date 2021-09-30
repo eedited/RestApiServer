@@ -9,6 +9,16 @@ import DB from '../db';
 
 const router: Router = Router();
 
+router.get('/google',
+    passport.authenticate('google', { scope: ['profile'] }));
+
+function authSuccess(req: Request, res: Response) {
+    res.redirect('/');
+}
+
+router.get('/google/callback',
+    passport.authenticate('google'), authSuccess);
+
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     const { userId, password, email, birthday, nickname, profilePicture }: User = req.body;
     try {

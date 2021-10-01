@@ -10,10 +10,10 @@ import DB from '../db';
 const router: Router = Router();
 
 router.get('/google',
-    passport.authenticate('google', { scope: ['profile'] }));
+    passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 function authSuccess(req: Request, res: Response) {
-    res.redirect('/');
+    res.redirect('http://localhost:4000/snsAuth');
 }
 
 router.get('/google/callback',
@@ -65,7 +65,7 @@ router.post('/signup/emailValidation', async (req: Request, res: Response) => {
                 info: '/auth/signup/emailValidation : need token as input',
             });
         }
-        const user: User|null = await DB.prisma.user.findFirst({ where: { emailToken: token } });
+        const user: User|null = await DB.prisma.user.findFirst({ where: { emailToken: token, deletedAt: null } });
         if (!user) {
             return res.status(403).json({
                 info: '/auth/signup/emailValidation : invalid token',

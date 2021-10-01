@@ -2,6 +2,7 @@ import passport from 'passport';
 import { User } from '@prisma/client';
 import DB from '../db';
 import localStrategy from './localStrategy';
+import googleStrategy from './snsLogin';
 
 export default function passportConfig(): void {
     passport.serializeUser((user: Express.User, done: (err: Error | null, id: string) => void) => {
@@ -16,4 +17,5 @@ export default function passportConfig(): void {
     });
 
     localStrategy();
+    googleStrategy();
 }

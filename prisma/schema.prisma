@@ -19,6 +19,7 @@ model User {
     followerCnt    Int          @default(0)
     description    String       @db.Text
     uploadVideoCnt Int          @default(0)
+    admin          Boolean      @default(false)
     proTag         Boolean      @default(false)
     createdAt      DateTime     @default(now())
     updatedAt      DateTime     @updatedAt

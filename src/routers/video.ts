@@ -8,6 +8,8 @@ const router: Router = Router();
 const take: number = 20;
 
 router.get('/', async (req: Request, res: Response) => {
+    const category: string = req.query.category as string;
+    const sort: string = req.query.sort as string;
     const pageStr: string = req.query.page as string;
     const { user }: Request = req;
     try {
@@ -19,41 +21,175 @@ router.get('/', async (req: Request, res: Response) => {
         }
         let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
         if (user) {
-            videos = await DB.prisma.video.findMany({
-                where: { deletedAt: null },
-                skip: (pageNum - 1) * take,
-                take,
-                include: {
-                    WhatVideoUpload: {
-                        where: {
-                            liker: user.userId,
-                            deletedAt: null,
+            if (!category) {
+                if (sort === 'latest') {
+                    videos = await DB.prisma.video.findMany({
+                        where: { deletedAt: null },
+                        skip: (pageNum - 1) * take,
+                        orderBy: { createdAt: 'desc' },
+                        take,
+                        include: {
+                            WhatVideoUpload: {
+                                where: {
+                                    liker: user.userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    liker: true,
+                                },
+                            },
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
                         },
-                        select: {
-                            liker: true,
+                    });
+                }
+                else {
+                    videos = await DB.prisma.video.findMany({
+                        where: { deletedAt: null },
+                        skip: (pageNum - 1) * take,
+                        orderBy: { likeCnt: 'desc' },
+                        take,
+                        include: {
+                            WhatVideoUpload: {
+                                where: {
+                                    liker: user.userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    liker: true,
+                                },
+                            },
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
                         },
-                    },
-                    User: {
-                        select: {
-                            nickname: true,
+                    });
+                }
+            }
+            else {
+                // eslint-disable-next-line no-lonely-if
+                if (sort === 'latest') {
+                    videos = await DB.prisma.video.findMany({
+                        where: { deletedAt: null, category },
+                        skip: (pageNum - 1) * take,
+                        orderBy: { createdAt: 'desc' },
+                        take,
+                        include: {
+                            WhatVideoUpload: {
+                                where: {
+                                    liker: user.userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    liker: true,
+                                },
+                            },
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
                         },
-                    },
-                },
-            });
+                    });
+                }
+                else {
+                    videos = await DB.prisma.video.findMany({
+                        where: { deletedAt: null, category },
+                        skip: (pageNum - 1) * take,
+                        orderBy: { likeCnt: 'desc' },
+                        take,
+                        include: {
+                            WhatVideoUpload: {
+                                where: {
+                                    liker: user.userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    liker: true,
+                                },
+                            },
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
+                        },
+                    });
+                }
+            }
         }
         else {
-            videos = await DB.prisma.video.findMany({
-                where: { deletedAt: null },
-                skip: (pageNum - 1) * take,
-                take,
-                include: {
-                    User: {
-                        select: {
-                            nickname: true,
+            // eslint-disable-next-line no-lonely-if
+            if (!category) {
+                if (sort === 'latest') {
+                    videos = await DB.prisma.video.findMany({
+                        where: { deletedAt: null },
+                        skip: (pageNum - 1) * take,
+                        orderBy: { createdAt: 'desc' },
+                        take,
+                        include: {
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
                         },
-                    },
-                },
-            });
+                    });
+                }
+                else {
+                    videos = await DB.prisma.video.findMany({
+                        where: { deletedAt: null },
+                        skip: (pageNum - 1) * take,
+                        orderBy: { likeCnt: 'desc' },
+                        take,
+                        include: {
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
+                        },
+                    });
+                }
+            }
+            else {
+                // eslint-disable-next-line no-lonely-if
+                if (sort === 'latest') {
+                    videos = await DB.prisma.video.findMany({
+                        where: { deletedAt: null, category },
+                        skip: (pageNum - 1) * take,
+                        orderBy: { createdAt: 'desc' },
+                        take,
+                        include: {
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
+                        },
+                    });
+                }
+                else {
+                    videos = await DB.prisma.video.findMany({
+                        where: { deletedAt: null, category },
+                        skip: (pageNum - 1) * take,
+                        orderBy: { likeCnt: 'desc' },
+                        take,
+                        include: {
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
+                        },
+                    });
+                }
+            }
         }
         return res.status(200).json({
             videos,
@@ -66,131 +202,8 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
-router.get('/sort/latest', async (req: Request, res: Response) => {
-    const pageStr: string = req.query.page as string;
-    const { user }: Request = req;
-    try {
-        const pageNum: number = Number(pageStr);
-        if (Number.isNaN(pageNum)) {
-            return res.status(400).json({
-                info: `/video/${pageStr} not valid input`,
-            });
-        }
-        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
-        if (user) {
-            videos = await DB.prisma.video.findMany({
-                where: { deletedAt: null },
-                skip: (pageNum - 1) * take,
-                orderBy: { createdAt: 'desc' },
-                take,
-                include: {
-                    WhatVideoUpload: {
-                        where: {
-                            liker: user.userId,
-                            deletedAt: null,
-                        },
-                        select: {
-                            liker: true,
-                        },
-                    },
-                    User: {
-                        select: {
-                            nickname: true,
-                        },
-                    },
-                },
-            });
-        }
-        else {
-            videos = await DB.prisma.video.findMany({
-                where: { deletedAt: null },
-                skip: (pageNum - 1) * take,
-                orderBy: { createdAt: 'desc' },
-                take,
-                include: {
-                    User: {
-                        select: {
-                            nickname: true,
-                        },
-                    },
-                },
-            });
-        }
-        return res.status(200).json({
-            videos,
-        });
-    }
-    catch (err) {
-        return res.status(500).json({
-            info: '/video/sort/latest router error',
-        });
-    }
-});
-
-router.get('/sort/thumbup', async (req: Request, res: Response) => {
-    const pageStr: string = req.query.page as string;
-    const { user }: Request = req;
-    try {
-        const pageNum: number = Number(pageStr);
-        if (Number.isNaN(pageNum)) {
-            return res.status(400).json({
-                info: `/video/${pageStr} not valid input`,
-            });
-        }
-        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
-        if (user) {
-            videos = await DB.prisma.video.findMany({
-                where: { deletedAt: null },
-                skip: (pageNum - 1) * take,
-                orderBy: { likeCnt: 'desc' },
-                take,
-                include: {
-                    WhatVideoUpload: {
-                        where: {
-                            liker: user.userId,
-                            deletedAt: null,
-                        },
-                        select: {
-                            liker: true,
-                        },
-                    },
-                    User: {
-                        select: {
-                            nickname: true,
-                        },
-                    },
-                },
-            });
-        }
-        else {
-            videos = await DB.prisma.video.findMany({
-                where: { deletedAt: null },
-                skip: (pageNum - 1) * take,
-                orderBy: { likeCnt: 'desc' },
-                take,
-                include: {
-                    User: {
-                        select: {
-                            nickname: true,
-                        },
-                    },
-                },
-            });
-        }
-
-        return res.status(200).json({
-            videos,
-        });
-    }
-    catch (err) {
-        return res.status(500).json({
-            info: '/video/sort/thumbup router error',
-        });
-    }
-});
-
 router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
-    const { title, description, url, thumbnail, tags }: Video&{tags: string[]} = req.body;
+    const { title, description, url, thumbnail, category, tags }: Video&{tags: string[]} = req.body;
     const user: Express.User = req.user as Express.User;
     try {
         const uploadedVideo: Video = await DB.prisma.video.create({
@@ -199,22 +212,25 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
                 description,
                 url,
                 thumbnail,
+                category,
                 uploader: user.userId,
             },
         });
-        const tagData: {
-            uploader: string;
-            videoId: string;
-            tagName: string;
-        }[] = tags.map((tag: string) => ({
-            uploader: uploadedVideo.uploader,
-            videoId: uploadedVideo.id,
-            tagName: tag,
-        }));
-        await DB.prisma.videoTag.createMany({
-            data: tagData,
-            skipDuplicates: true,
-        });
+        if (tags) {
+            const tagData: {
+                uploader: string;
+                videoId: string;
+                tagName: string;
+            }[] = tags.map((tag: string) => ({
+                uploader: uploadedVideo.uploader,
+                videoId: uploadedVideo.id,
+                tagName: tag,
+            }));
+            await DB.prisma.videoTag.createMany({
+                data: tagData,
+                skipDuplicates: true,
+            });
+        }
         return res.status(200).json({});
     }
     catch (err) {
@@ -224,7 +240,7 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
     }
 });
 router.patch('/upload', isLoggedIn, async (req: Request, res: Response) => {
-    const { id, title, description, url, thumbnail, tags }: Video&{tags: string[]} = req.body;
+    const { id, title, description, url, thumbnail, category, tags }: Video&{tags: string[]} = req.body;
     const user: Express.User = req.user as Express.User;
     try {
         const uploadedVideo: Video = await DB.prisma.video.update({
@@ -239,18 +255,10 @@ router.patch('/upload', isLoggedIn, async (req: Request, res: Response) => {
                 description,
                 url,
                 thumbnail,
+                category,
                 uploader: user.userId,
             },
         });
-        const tagData: {
-            uploader: string;
-            videoId: string;
-            tagName: string;
-        }[] = tags.map((tag: string) => ({
-            uploader: uploadedVideo.uploader,
-            videoId: uploadedVideo.id,
-            tagName: tag,
-        }));
         await DB.prisma.videoTag.deleteMany({
             where: {
                 WhatVideoUploadTag: {
@@ -258,10 +266,21 @@ router.patch('/upload', isLoggedIn, async (req: Request, res: Response) => {
                 },
             },
         });
-        await DB.prisma.videoTag.createMany({
-            data: tagData,
-            skipDuplicates: true,
-        });
+        if (tags) {
+            const tagData: {
+                uploader: string;
+                videoId: string;
+                tagName: string;
+            }[] = tags.map((tag: string) => ({
+                uploader: uploadedVideo.uploader,
+                videoId: uploadedVideo.id,
+                tagName: tag,
+            }));
+            await DB.prisma.videoTag.createMany({
+                data: tagData,
+                skipDuplicates: true,
+            });
+        }
         return res.status(200).json({});
     }
     catch (err) {

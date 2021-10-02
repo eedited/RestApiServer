@@ -52,8 +52,9 @@ model Video {
     uploader           String       @db.VarChar(50)
     title              String       @db.VarChar(50)
     description        String       @db.Text
-    url                String       @db.VarChar(200)
-    thumbnail          String       @db.VarChar(200)
+    category           String?      @db.VarChar(20)
+    url                String       @db.VarChar(500)
+    thumbnail          String       @db.VarChar(500)
     likeCnt            Int          @default(0)
     viewCnt            Int          @default(0)
     createdAt          DateTime     @default(now())

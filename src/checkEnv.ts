@@ -12,6 +12,7 @@ const envList: string[] = [
     'BCRYPT_SALT',
     'COOKIE_SECRET',
     'NODEMAILER_USER', 'NODEMAILER_PASS',
+    'FE_DEV_URL', 'FE_PROD_URL',
 ];
 
 export default function checkEnv(): void {

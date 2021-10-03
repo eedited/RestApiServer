@@ -4,6 +4,8 @@ RUN mkdir -p /eedited
 WORKDIR /eedited
 ADD . /eedited
 RUN npm install
+RUN npx prisma generate
+RUN npm build
 
 EXPOSE 9712 3000 3001
 

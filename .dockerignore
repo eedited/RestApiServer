@@ -3,7 +3,6 @@
 coverage
 
 node_modules
-prisma
 public
 src
 swagger.yaml
@@ -23,7 +22,5 @@ tests
 jest.config.js
 
 README.md
-tsconfig.json
-tsconfig.src.json
 
 npm-debug.log

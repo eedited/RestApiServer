@@ -44,18 +44,21 @@ if (process.env.NODE_ENV === 'production') {
     morganOption = 'combined';
 
     const RedisStore: connectRedis.RedisStore = connectRedis(session);
-    const redisClient: redis.RedisClient = redis.createClient({
-        url: process.env.REDIS_URL,
-        password: process.env.REDIS_PASSWORD,
+    const redisClient: redis.RedisClient = redis.createClient();
+    sessionStoreOption = new RedisStore({
+        client: redisClient,
+        host: process.env.REDIS_URL,
+        port: Number(process.env.REDIS_PORT),
     });
-    sessionStoreOption = new RedisStore({ client: redisClient });
 
     app.use(helmet({ contentSecurityPolicy: false }));
     app.use(hpp());
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const swaggerSpec: any = YAML.load(path.join(__dirname, './swagger.yaml'));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+else if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const swaggerSpec: any = YAML.load(path.join(__dirname, './swagger/index.yaml'));
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 
 app.use(morgan(morganOption));
 app.use('/', express.static('public'));

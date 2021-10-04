@@ -8,9 +8,6 @@ import connectRedis from 'connect-redis';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import hpp from 'hpp';
-import swaggerUi from 'swagger-ui-express';
-import YAML from 'yamljs';
-import path from 'path';
 
 import checkEnv from './checkEnv';
 import passportConfig from './passport';

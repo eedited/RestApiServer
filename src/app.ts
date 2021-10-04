@@ -54,11 +54,6 @@ if (process.env.NODE_ENV === 'production') {
     app.use(helmet({ contentSecurityPolicy: false }));
     app.use(hpp());
 }
-else if (process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const swaggerSpec: any = YAML.load(path.join(__dirname, './swagger/index.yaml'));
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-}
 
 app.use(morgan(morganOption));
 app.use('/', express.static('public'));

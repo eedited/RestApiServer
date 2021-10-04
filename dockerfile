@@ -9,4 +9,4 @@ RUN npm build
 
 EXPOSE 9712 3000 3001
 
-CMD [ "npm", "run", "dev:docker" ]
+CMD [ "npm", "run", "docker" ]

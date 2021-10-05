@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { User, Video, Follower } from '@prisma/client';
+import sendEmail from '../services/sendEmail';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
@@ -218,6 +219,26 @@ router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
     catch (err) {
         return res.status(500).json({
             info: '/user/change router error',
+        });
+    }
+});
+
+router.post('/discomfort', isLoggedIn, async (req: Request, res: Response) => {
+    const { title, description }: {title: string, description: string} = req.body;
+    const { user }: Request = req;
+    try {
+        const emailTitle: string = `user:${user?.userId} title : ${title}`;
+        const emailPromise: Promise<string>[] = [
+            sendEmail('minsu2530@u.sogang.ac.kr', emailTitle, description),
+            sendEmail('tjdnf2eoeld@gmail.com', emailTitle, description),
+            sendEmail('rldnd913@gmail.com', emailTitle, description),
+        ];
+        await Promise.all(emailPromise);
+        return res.status(200).json({});
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/user/discomfort - nodemaileError',
         });
     }
 });

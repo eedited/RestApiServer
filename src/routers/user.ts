@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { User, Video, Follower } from '@prisma/client';
+import { videointelligence } from 'googleapis/build/src/apis/videointelligence';
 import { isLoggedIn } from '../middlewares/auth';
 import DB from '../db';
 
@@ -73,7 +74,7 @@ router.get('/:userId', async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
     const { user }: Request = req;
     try {
-        let userInfo: (User & { Video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; WhatVideoUpload: { liker: string; }[]; })[]; followFrom: { followingId: string; }[]; followTo: { followerId: string; }[]; }) | (User & { Video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; })[]; followFrom: { followingId: string; }[]; }) | null;
+        let userInfo: (User & { Video: (Video & { WhatVideoUpload: { liker: string; }[]; })[]; followFrom: { followingId: string; }[]; followTo: { followerId: string; }[]; }) | (User & { followFrom: { followingId: string; }[]; Video: Video[]; }) | null;
         if (user) {
             userInfo = await DB.prisma.user.findFirst({
                 where: {
@@ -87,15 +88,6 @@ router.get('/:userId', async (req: Request, res: Response) => {
                             deletedAt: null,
                         },
                         include: {
-                            WhoVideoUploadTag: {
-                                where: {
-                                    uploader: userId,
-                                    deletedAt: null,
-                                },
-                                select: {
-                                    tagName: true,
-                                },
-                            },
                             WhatVideoUpload: {
                                 where: {
                                     liker: user.userId,
@@ -140,17 +132,6 @@ router.get('/:userId', async (req: Request, res: Response) => {
                             uploader: userId,
                             deletedAt: null,
                         },
-                        include: {
-                            WhoVideoUploadTag: {
-                                where: {
-                                    uploader: userId,
-                                    deletedAt: null,
-                                },
-                                select: {
-                                    tagName: true,
-                                },
-                            },
-                        },
                     },
                     followFrom: {
                         where: {
@@ -169,17 +150,18 @@ router.get('/:userId', async (req: Request, res: Response) => {
                 info: `/user/${userId} user not found`,
             });
         }
-        const tags: {[key: string]: number} = userInfo.Video
-            .map((video: (Video & { WhoVideoUploadTag: { tagName: string; }[]; })) => video.WhoVideoUploadTag)
-            .reduce((acc: {tagName: string;}[], tag: {tagName: string;}[]) => [...acc, ...tag], [])
-            .map((tag: {tagName: string;}) => tag.tagName)
-            .reduce((acc: {[key: string]: number}, tag: string) => {
-                acc[tag] = (acc[tag] || 0) + 1;
+        const categories: {
+            [key: string]: number;
+        } = userInfo.Video
+            .map((video: Video) => video.category)
+            .reduce((acc: {[key: string]: number}, val: string | null) => {
+                const x: string = val === null ? 'etc' : val;
+                acc[x] = (acc[x] || 0) + 1;
                 return acc;
             }, {});
         return res.status(200).json({
             ...userInfo,
-            tags,
+            categories,
         });
     }
     catch (err) {

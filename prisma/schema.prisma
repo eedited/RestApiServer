@@ -96,3 +96,12 @@ model Follower {
     @@id([followerId, followingId])
     @@index([followingId], name: "followingId")
 }
+
+model EeditedHistory {
+    id        Int       @id @default(autoincrement())
+    title     String    @db.VarChar(100)
+    contents  String    @db.Text
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+}

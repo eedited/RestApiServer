@@ -34,7 +34,7 @@ const app: Application = express();
 app.set('port', process.env.PORT);
 app.use(
     cors({
-        origin: [process.env.NODE_ENV === 'production' ? process.env.FE_PROD_URL as string : process.env.FE_DEV_URL as string],
+        origin: [process.env.FE_URL as string],
         credentials: true,
     }),
 );

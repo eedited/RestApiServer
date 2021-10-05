@@ -12,7 +12,7 @@ const envList: string[] = [
     'BCRYPT_SALT',
     'COOKIE_SECRET',
     'NODEMAILER_USER', 'NODEMAILER_PASS',
-    'FE_DEV_URL', 'FE_PROD_URL',
+    'FE_DEV_URL', 'FE_PROD_URL', 'FE_TEST_URL',
 ];
 
 export default function checkEnv(): void {
@@ -20,27 +20,30 @@ export default function checkEnv(): void {
         case 'production':
             process.env.PORT = process.env.PORT_PRODUCTION;
             process.env.DB_URL = process.env.DB_PRODUCTION_URL;
+            process.env.FE_URL = process.env.FE_PROD_URL;
             break;
         case 'development':
             process.env.PORT = process.env.PORT_DEVELOPMENT;
             process.env.DB_URL = process.env.DB_DEVELOPMENT_URL;
+            process.env.FE_URL = process.env.FE_DEV_URL;
             break;
         case 'test':
             process.env.PORT = process.env.PORT_TEST;
             process.env.DB_URL = process.env.DB_TEST_URL;
+            process.env.FE_URL = process.env.FE_TEST_URL;
             break;
         default:
             console.log('NODE_ENV is not set. Use Default(development)...');
             process.env.NODE_ENV = 'development';
             process.env.PORT = process.env.PORT_DEVELOPMENT;
             process.env.DB_URL = process.env.DB_DEVELOPMENT_URL;
+            process.env.FE_URL = process.env.FE_DEV_URL;
             break;
     }
 
     const URL: string = process.env.DB_URL as string;
     const version: string = process.env.npm_package_version as string;
     process.env.DB_URL = URL + version;
-
     const undefinedList: string[] = envList.filter((envVar: string) => process.env[envVar] === undefined || process.env[envVar] === '');
 
     if (undefinedList.length > 0) {

@@ -9,9 +9,9 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import hpp from 'hpp';
 
+import cors from 'cors';
 import checkEnv from './checkEnv';
 import passportConfig from './passport';
-
 /**
  * Routers
  */
@@ -29,7 +29,12 @@ checkEnv();
  */
 const app: Application = express();
 app.set('port', process.env.PORT);
-
+app.use(
+    cors({
+        origin: [process.env.FE_URL as string],
+        credentials: true,
+    }),
+);
 /**
  * Middlewares
  */

@@ -19,7 +19,7 @@ router.get('/', async (req: Request, res: Response) => {
                 info: `/video/${pageStr} not valid input`,
             });
         }
-        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
+        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string, profilePicture: string}})[];
         if (user) {
             if (!category) {
                 if (sort === 'latest') {
@@ -41,6 +41,7 @@ router.get('/', async (req: Request, res: Response) => {
                             User: {
                                 select: {
                                     nickname: true,
+                                    profilePicture: true,
                                 },
                             },
                         },
@@ -65,6 +66,7 @@ router.get('/', async (req: Request, res: Response) => {
                             User: {
                                 select: {
                                     nickname: true,
+                                    profilePicture: true,
                                 },
                             },
                         },
@@ -92,6 +94,7 @@ router.get('/', async (req: Request, res: Response) => {
                             User: {
                                 select: {
                                     nickname: true,
+                                    profilePicture: true,
                                 },
                             },
                         },
@@ -116,6 +119,7 @@ router.get('/', async (req: Request, res: Response) => {
                             User: {
                                 select: {
                                     nickname: true,
+                                    profilePicture: true,
                                 },
                             },
                         },
@@ -136,6 +140,7 @@ router.get('/', async (req: Request, res: Response) => {
                             User: {
                                 select: {
                                     nickname: true,
+                                    profilePicture: true,
                                 },
                             },
                         },
@@ -151,6 +156,7 @@ router.get('/', async (req: Request, res: Response) => {
                             User: {
                                 select: {
                                     nickname: true,
+                                    profilePicture: true,
                                 },
                             },
                         },
@@ -169,6 +175,7 @@ router.get('/', async (req: Request, res: Response) => {
                             User: {
                                 select: {
                                     nickname: true,
+                                    profilePicture: true,
                                 },
                             },
                         },
@@ -184,6 +191,7 @@ router.get('/', async (req: Request, res: Response) => {
                             User: {
                                 select: {
                                     nickname: true,
+                                    profilePicture: true,
                                 },
                             },
                         },
@@ -344,7 +352,7 @@ router.get('/:videoId', async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
     const { user }: Request = req;
     try {
-        let video: (Video & { User: User & { followTo: { followerId: string; }[]; }; WhatVideoUploadTag: { tagName: string; }[]; WhatVideoUpload: { liker: string; }[]; }) | (Video & { User: { nickname: string; }; WhatVideoUploadTag: { tagName: string; }[]; }) | null;
+        let video: (Video & { User: User & { followTo: { followerId: string; }[]; }; WhatVideoUploadTag: { tagName: string; }[]; WhatVideoUpload: { liker: string; }[]; }) | (Video & { User: { nickname: string, profilePicture: string }; WhatVideoUploadTag: { tagName: string; }[]; }) | null;
         if (user) {
             video = await DB.prisma.video.findFirst({
                 where: {
@@ -364,6 +372,7 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                     User: {
                         select: {
                             nickname: true,
+                            profilePicture: true,
                             followTo: {
                                 where: {
                                     followerId: user.userId,
@@ -393,6 +402,7 @@ router.get('/:videoId', async (req: Request, res: Response) => {
                     User: {
                         select: {
                             nickname: true,
+                            profilePicture: true,
                         },
                     },
                     WhatVideoUploadTag: {
@@ -543,7 +553,7 @@ router.get('/:userId/list', async (req: Request, res: Response) => {
                 info: `/video/${pageStr} not valid input`,
             });
         }
-        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string}})[];
+        let videos: (Video&{WhatVideoUpload?: {liker: string}[], User: {nickname: string, profilePicture: string}})[];
         if (user) {
             videos = await DB.prisma.video.findMany({
                 where: {
@@ -565,6 +575,7 @@ router.get('/:userId/list', async (req: Request, res: Response) => {
                     User: {
                         select: {
                             nickname: true,
+                            profilePicture: true,
                         },
                     },
                 },
@@ -582,6 +593,7 @@ router.get('/:userId/list', async (req: Request, res: Response) => {
                     User: {
                         select: {
                             nickname: true,
+                            profilePicture: true,
                         },
                     },
                 },

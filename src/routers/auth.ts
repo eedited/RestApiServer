@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt, { hash } from 'bcrypt';
+import crypto from 'crypto';
 import passport from 'passport';
 import { User } from '@prisma/client';
 import { signupValidation } from '../services/mailContent';
@@ -34,8 +35,8 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
 
         const salt: number = Number(process.env.BCRYPT_SALT);
         const hashedPassword: string = await bcrypt.hash(password.toString(), salt);
-        const randomToken: string = Math.random().toString(36).slice(2);
-        const hashedToken: string = await bcrypt.hash(randomToken, salt);
+        const emailSha256: string = crypto.createHmac('sha256', String(salt)).update(email).digest('hex');
+        const hashedToken: string = await bcrypt.hash(emailSha256, salt);
         await sendEmail(email, '[eedited] 회원가입을 위한 메일 인증', signupValidation(hashedToken));
         await DB.prisma.user.create({
             data: {

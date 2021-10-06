@@ -10,16 +10,6 @@ import DB from '../db';
 
 const router: Router = Router();
 
-router.get('/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] }));
-
-function authSuccess(req: Request, res: Response) {
-    res.redirect('http://localhost:4000/snsAuth');
-}
-
-router.get('/google/callback',
-    passport.authenticate('google'), authSuccess);
-
 router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: NextFunction) => {
     const { userId, password, email, birthday, nickname, profilePicture }: User = req.body;
     try {
@@ -58,6 +48,7 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         });
     }
 });
+
 router.post('/signup/emailValidation', async (req: Request, res: Response) => {
     const { token }: typeof req.body = req.body;
     try {
@@ -84,6 +75,7 @@ router.post('/signup/emailValidation', async (req: Request, res: Response) => {
         });
     }
 });
+
 router.get('/signup/email', isLoggedIn, async (req: Request, res: Response) => {
     const { user }: Request = req;
     if (!user) {
@@ -244,6 +236,12 @@ router.delete('/:userId', isLoggedIn, async (req: Request, res: Response) => {
             info: '/auth/:userId server error',
         });
     }
+});
+
+router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/google/callback', passport.authenticate('google'), (req: Request, res: Response) => {
+    res.redirect('http://localhost:4000/snsAuth');
 });
 
 export default router;

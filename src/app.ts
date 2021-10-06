@@ -8,10 +8,11 @@ import connectRedis from 'connect-redis';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import hpp from 'hpp';
-
 import cors from 'cors';
+
 import checkEnv from './checkEnv';
 import passportConfig from './passport';
+
 /**
  * Routers
  */
@@ -29,12 +30,7 @@ checkEnv();
  */
 const app: Application = express();
 app.set('port', process.env.PORT);
-app.use(
-    cors({
-        origin: [process.env.FE_URL as string],
-        credentials: true,
-    }),
-);
+
 /**
  * Middlewares
  */
@@ -46,15 +42,18 @@ if (process.env.NODE_ENV === 'production') {
     morganOption = 'combined';
 
     const RedisStore: connectRedis.RedisStore = connectRedis(session);
-    const redisClient: redis.RedisClient = redis.createClient();
-    sessionStoreOption = new RedisStore({
-        client: redisClient,
+    const redisClient: redis.RedisClient = redis.createClient({
         host: process.env.REDIS_URL,
         port: Number(process.env.REDIS_PORT),
     });
+    sessionStoreOption = new RedisStore({ client: redisClient });
 
     app.use(helmet({ contentSecurityPolicy: false }));
     app.use(hpp());
+    app.use(cors({
+        origin: [process.env.FE_URL as string],
+        credentials: true,
+    }));
 }
 
 app.use(morgan(morganOption));
@@ -69,7 +68,8 @@ app.use(session({
     proxy: process.env.NODE_ENV === 'production',
     cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
+        maxAge: 1000 * 60 * 10,
     },
     store: sessionStoreOption,
 }));

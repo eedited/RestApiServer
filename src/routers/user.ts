@@ -174,7 +174,7 @@ router.get('/:userId', async (req: Request, res: Response) => {
 export default router;
 
 router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
-    const { description, nickname }: typeof req.body = req.body;
+    const { description, nickname, profilePicture }: typeof req.body = req.body;
     const user: Express.User = req.user as Express.User;
     try {
         if (user.nickname !== nickname) { // nickname이 변경되었을 때.
@@ -193,6 +193,7 @@ router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
             data: {
                 description,
                 nickname,
+                profilePicture,
             },
         });
         return res.status(200).json({});

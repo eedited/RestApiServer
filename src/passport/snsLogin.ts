@@ -34,6 +34,7 @@ const googleStrategyVerify: googlePassport.VerifyFunctionWithRequest = async (re
                             logInType: 'Google',
                             emailToken: '',
                             description: '',
+                            profilePicture: process.env.DEFAULT_PROFILE_URL,
                         },
                     });
                 }
@@ -47,6 +48,7 @@ const googleStrategyVerify: googlePassport.VerifyFunctionWithRequest = async (re
                             logInType: 'Google',
                             emailToken: '',
                             description: '',
+                            profilePicture: process.env.DEFAULT_PROFILE_URL,
                         },
                     });
                 }

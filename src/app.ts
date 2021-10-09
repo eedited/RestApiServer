@@ -37,6 +37,12 @@ app.set('port', process.env.PORT);
 let morganOption: string = 'dev';
 let sessionStoreOption: connectRedis.RedisStore | session.MemoryStore = new MemoryStore();
 
+// cors 설정
+app.use(cors({
+    origin: [process.env.FE_URL as string],
+    credentials: true,
+}));
+
 // production env setting
 if (process.env.NODE_ENV === 'production') {
     morganOption = 'combined';
@@ -50,10 +56,6 @@ if (process.env.NODE_ENV === 'production') {
 
     app.use(helmet({ contentSecurityPolicy: false }));
     app.use(hpp());
-    app.use(cors({
-        origin: [process.env.FE_URL as string],
-        credentials: true,
-    }));
 }
 
 app.use(morgan(morganOption));

@@ -13,7 +13,7 @@ const localStrategyConfig: localStrategyConfigType = {
     passwordField: 'password',
 };
 
-type doneFunctionType = (error: Error | null, user: Express.User | null) => void;
+type doneFunctionType = (error: Error | unknown | null, user: Express.User | null) => void;
 const localStrategyVerify: localPassport.VerifyFunction = async (userId: string, password: string, done: doneFunctionType) => {
     const prisma: PrismaClient = new PrismaClient();
     try {

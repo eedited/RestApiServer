@@ -19,8 +19,6 @@ export default async function sendEmail(email: string, subject: string, Contents
             clientSecret: process.env.OAUTH_CLIENT_SECRET,
             refreshToken: process.env.OAUTH_REFRESH_TOKEN,
             accessToken,
-            // user: process.env.NODEMAILER_USER,
-            // pass: process.env.NODEMAILER_PASS,
         },
     });
     try {

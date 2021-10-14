@@ -71,7 +71,7 @@ app.use(session({
     proxy: process.env.NODE_ENV === 'production',
     cookie: {
         httpOnly: true,
-        secure: false,
+        secure: true,
         maxAge: 1000 * 60 * 10,
     },
     store: sessionStoreOption,

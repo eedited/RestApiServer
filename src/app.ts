@@ -30,6 +30,7 @@ checkEnv();
  */
 const app: Application = express();
 app.set('port', process.env.PORT);
+app.set('trust proxy', 1);
 
 /**
  * Middlewares

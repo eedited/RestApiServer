@@ -97,7 +97,7 @@ model Follower {
     @@index([followingId], name: "followingId")
 }
 
-model EeditedHistory {
+model Post {
     id        Int       @id @default(autoincrement())
     title     String    @db.VarChar(100)
     contents  String    @db.Text

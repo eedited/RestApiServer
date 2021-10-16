@@ -102,7 +102,14 @@ router.get('/signup/email', isLoggedIn, async (req: Request, res: Response) => {
 router.get('/check', isLoggedIn, async (req: Request, res: Response) => {
     const user: Express.User = req.user as Express.User;
     return res.status(200).json({
-        ...user,
+        userId: user.userId,
+        birthday: user.birthday,
+        nickname: user.nickname,
+        email: user.email,
+        emailToken: user.emailToken ? 'yes' : '',
+        profilePicture: user.profilePicture,
+        description: user.description,
+        proTag: user.proTag,
     });
 });
 

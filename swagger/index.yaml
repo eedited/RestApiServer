@@ -50,6 +50,55 @@ paths:
                       info:
                         type: string
                         example: '/auth/signup - DB Error : Checks DB Connection or CRUD'
+  /auth/signup/emailValidation:
+    post:
+      tags:
+        - /auth
+      summary: 발급해준 토큰과 db에 저장된 토큰이 일치하는지 확인해서 이메일확인을 승인
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '400':
+          allOf:
+            - $ref: '#/components/responses/badRequestResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/auth/signup/emailValidation : need token as input'
+        '403':
+          description: invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  info:
+                    type: string
+                    example: '/auth/signup/emailValidation : invalid token'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/auth/signup/emailValidation : Check DB Connection or CRUD'
   /auth/signup/email:
     get:
       tags:
@@ -66,15 +115,27 @@ paths:
         '200':
           allOf:
             - $ref: '#/components/responses/successResponse'
+        '403':
+          description: invalid
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  info:
+                    type: string
+                    example: '/auth/signup/email : already authed'
+        '404':
+          allOf:
+            - $ref: '#/components/responses/notFoundResponse'
             - content:
                 application/json:
                   schema:
                     type: object
                     properties:
-                      randomNum:
-                        type: integer
-                        minimum: 10000
-                        maximum: 99999
+                      info:
+                        type: string
+                        example: '/auth/signup/email: need login'
         '500':
           allOf:
             - $ref: '#/components/responses/routerErrorResponse'
@@ -326,6 +387,16 @@ paths:
       summary: All videos are brought in units of 20.
       parameters:
         - in: query
+          name: category
+          schema:
+            type: string
+          description: category Name
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: sorting method
+        - in: query
           name: pageStr
           schema:
             type: string
@@ -370,155 +441,7 @@ paths:
                         properties:
                           nickname:
                             type: string
-        200 and loggedIn:
-          allOf:
-            - $ref: '#/components/responses/successResponse'
-            - content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Video'
-            - content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      WhatVideoUpload:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            liker:
-                              type: string
-                      User:
-                        type: object
-                        properties:
-                          nickname:
-                            type: string
-  /video/sort/latest:
-    get:
-      tags:
-        - /video
-      summary: sort all videos in the latest order
-      parameters:
-        - in: query
-          name: pageStr
-          schema:
-            type: string
-          description: pageNum
-      responses:
-        '400':
-          allOf:
-            - $ref: '#/components/responses/badRequestResponse'
-            - content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      info:
-                        type: string
-                        example: '/video/${pageStr} not valid input'
-        '500':
-          allOf:
-            - $ref: '#/components/responses/routerErrorResponse'
-            - content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      info:
-                        type: string
-                        example: /video/sort/latest router error
-        200 and not loggedIn:
-          allOf:
-            - $ref: '#/components/responses/successResponse'
-            - content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Video'
-            - content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      User:
-                        type: object
-                        properties:
-                          nickname:
-                            type: string
-        200 and loggedIn:
-          allOf:
-            - $ref: '#/components/responses/successResponse'
-            - content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Video'
-            - content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      WhatVideoUpload:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            liker:
-                              type: string
-                      User:
-                        type: object
-                        properties:
-                          nickname:
-                            type: string
-  /video/sort/thumbup:
-    get:
-      tags:
-        - /video
-      summary: sort all videos in the thumbup order
-      parameters:
-        - in: query
-          name: pageStr
-          schema:
-            type: string
-          description: pageNum
-      responses:
-        '400':
-          allOf:
-            - $ref: '#/components/responses/badRequestResponse'
-            - content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      info:
-                        type: string
-                        example: '/video/${pageStr} not valid input'
-        '500':
-          allOf:
-            - $ref: '#/components/responses/routerErrorResponse'
-            - content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      info:
-                        type: string
-                        example: /video/sort/thumbup router error
-        200 and not loggedIn:
-          allOf:
-            - $ref: '#/components/responses/successResponse'
-            - content:
-                application/json:
-                  schema:
-                    $ref: '#/components/schemas/Video'
-            - content:
-                application/json:
-                  schema:
-                    type: object
-                    properties:
-                      User:
-                        type: object
-                        properties:
-                          nickname:
+                          profilePicture:
                             type: string
         200 and loggedIn:
           allOf:
@@ -555,24 +478,68 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-                - type: object
-                  properties:
-                    title:
-                      type: string
-                    discription:
-                      type: string
-                    url:
-                      type: string
-                      format: uri
-                    thumbnail:
-                      type: string
-                      format: uri
-                    tags:
-                      type: array
-                      items:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                url:
+                  type: string
+                  format: uri
+                thumbnail:
+                  type: string
+                  format: uri
+                category:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
                         type: string
-                - $ref: '#/components/schemas/User'
+                        example: /video/upload router error
+    patch:
+      tags:
+        - /video
+      summary: video modify router
+      requestBody:
+        description: video's info
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                url:
+                  type: string
+                  format: uri
+                thumbnail:
+                  type: string
+                  format: uri
+                category:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
       responses:
         '200':
           $ref: '#/components/responses/successResponse'
@@ -695,6 +662,11 @@ paths:
                   schema:
                     type: object
                     properties:
+                      WhatVideoUpload:
+                        type: object
+                        properties:
+                          liker:
+                            type: string
                       User:
                         type: object
                         properties:
@@ -844,6 +816,8 @@ paths:
                         properties:
                           nickname:
                             type: string
+                          profilePicture:
+                            type: string
         200 and loggedIn:
           allOf:
             - $ref: '#/components/responses/successResponse'
@@ -860,6 +834,8 @@ paths:
                         type: object
                         properties:
                           nickname:
+                            type: string
+                          profilePicture:
                             type: string
                       WhatVideoUpload:
                         type: list
@@ -909,7 +885,7 @@ paths:
       tags:
         - /user
       summary: 'get a user''s all of info with videos, tags, follows, etc.'
-      description: 유저정보를 확인할 수 있는 라우터입니다.<br> 위쪽은 딱 봐도 유저정보<br> Video에는 해당 유저가 업로드한 영상이 array형태로 담겨 나옵니다.<br> 여기서 현재 로그인한 유저가 좋아요를 누른 영상의 경우 WhatVideoUpload 에 있는 liker에 현재 로그인한 유저의 아이디가 담겨서 나옵니다.<br> followFrom은 현재 보고있는 프로필에 해당하는 유저가 팔로우한 목록입니다. followTo는 현재 로그인한 유저가 프로필에 해당하는 유저를 팔로우한 경우 followerId에 현재 로그인한 유저의 아이디가 담겨서 나옵니다.
+      description: 유저정보를 확인할 수 있는 라우터입니다.<br> 위쪽은 딱 봐도 유저정보<br> Video에는 해당 유저가 업로드한 영상이 array형태로 담겨 나옵니다.<br> 여기서 현재 로그인한 유저가 좋아요를 누른 영상의 경우 WhatVideoUpload 에 있는 liker에 현재 로그인한 유저의 아이디가 담겨서 나옵니다.<br> followFrom은 현재 보고있는 프로필에 해당하는 유저가 팔로우한 목록입니다.<br> followTo는 현재 로그인한 유저가 프로필에 해당하는 유저를 팔로우한 경우 followerId에 현재 로그인한 유저의 아이디가 담겨서 나옵니다.
       parameters:
         - in: path
           name: userId
@@ -1003,13 +979,6 @@ paths:
                             deletedAt:
                               type: string
                               format: date-time
-                            WhoVideoUploadTag:
-                              type: array
-                              items:
-                                type: object
-                                properties:
-                                  tagName:
-                                    type: string
                             WhatVideoUpload:
                               type: array
                               items:
@@ -1030,6 +999,13 @@ paths:
                           type: object
                           properties:
                             followerId:
+                              type: string
+                      categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            categoryName:
                               type: string
         200 and not LoggedIn:
           allOf:
@@ -1106,13 +1082,6 @@ paths:
                             deletedAt:
                               type: string
                               format: date-time
-                            WhoVideoUploadTag:
-                              type: array
-                              items:
-                                type: object
-                                properties:
-                                  tagName:
-                                    type: string
                       followFrom:
                         type: array
                         items:
@@ -1120,6 +1089,86 @@ paths:
                           properties:
                             followingId:
                               type: string
+                      categories:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            categoryName:
+                              type: string
+  /user/change:
+    patch:
+      tags:
+        - /user
+      summary: change user's info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                nickname:
+                  type: string
+                profilePicture:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '404':
+          allOf:
+            - $ref: '#/components/responses/notFoundResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: '/user/change - DB : exists User of (nickname)'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /user/change router error
+  /user/discomfort:
+    post:
+      tags:
+        - /user
+      summary: 건의사항을 보내는 라우터
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/successResponse'
+        '500':
+          allOf:
+            - $ref: '#/components/responses/routerErrorResponse'
+            - content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      info:
+                        type: string
+                        example: /user/discomfort - nodemaileError
   /search/:
     get:
       tags:

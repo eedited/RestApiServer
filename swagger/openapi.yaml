@@ -10,6 +10,8 @@ servers:
 paths:
   /auth/signup: 
     $ref: './auth.yaml#/~1auth~1signup'
+  /auth/signup/emailValidation:
+    $ref: './auth.yaml#/~1auth~1signup~1emailValidation'
   /auth/signup/email:
     $ref: './auth.yaml#/~1auth~1signup~1email'
   /auth/check:
@@ -28,10 +30,6 @@ paths:
     $ref: './auth.yaml#/~1auth~1{userId}'
   /video/:
     $ref: './video.yaml#/~1video~1'
-  /video/sort/latest:
-    $ref: './video.yaml#/~1video~1sort~1latest'
-  /video/sort/thumbup:
-    $ref: './video.yaml#/~1video~1sort~1thumbup'
   /video/upload:
     $ref: './video.yaml#/~1video~1upload'
   /video/getTags:
@@ -48,6 +46,10 @@ paths:
     $ref: './user.yaml#/~1user~1{userId}~1follow'
   /user/{userId}:
     $ref: './user.yaml#/~1user~1{userId}'
+  /user/change:
+    $ref: './user.yaml#/~1user~1change'
+  /user/discomfort:
+    $ref: './user.yaml#/~1user~1discomfort'
   /search/:
     $ref: './search.yaml#/~1search~1'
 components:

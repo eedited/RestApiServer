@@ -41,6 +41,57 @@
                       type: string
                       example: '/auth/signup - DB Error : Checks DB Connection or CRUD'
 
+/auth/signup/emailValidation:
+  post:
+    tags:
+      - /auth
+    summary:
+      발급해준 토큰과 db에 저장된 토큰이 일치하는지 확인해서 이메일확인을 승인
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '400':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: '/auth/signup/emailValidation : need token as input'
+      '403':
+        description: invalid
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                info:
+                  type: string
+                  example: '/auth/signup/emailValidation : invalid token'
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
+                      type: string
+                      example: '/auth/signup/emailValidation : Check DB Connection or CRUD'
+
 /auth/signup/email:
   get:
     tags: 
@@ -58,15 +109,27 @@
       '200':
         allOf:
           - $ref: './openapi.yaml#/components/responses/successResponse'
+      '403':
+        description: invalid
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                info:
+                  type: string
+                  example: '/auth/signup/email : already authed'
+      '404':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/notFoundResponse'
           - content:
               application/json:
                 schema:
                   type: object
                   properties:
-                    randomNum:
-                      type: integer
-                      minimum: 10000
-                      maximum: 99999
+                    info:
+                      type: string
+                      example: '/auth/signup/email: need login'
       '500':
         allOf:
           - $ref: './openapi.yaml#/components/responses/routerErrorResponse'

@@ -5,6 +5,16 @@
     summary: All videos are brought in units of 20.
     parameters:
       - in : query
+        name: category
+        schema:
+          type: string
+        description: category Name
+      - in : query
+        name: sort
+        schema:
+          type: string
+        description: sorting method
+      - in : query
         name: pageStr
         schema:
           type: string
@@ -26,6 +36,8 @@
                       type: object
                       properties:
                         nickname:
+                          type: string
+                        profilePicture:
                           type: string
       '200 and loggedIn':
         allOf:
@@ -74,158 +86,6 @@
                       type: string
                       example: /video/${pageStr} router error
 
-/video/sort/latest:
-  get:
-    tags:
-      - /video
-    summary: sort all videos in the latest order
-    parameters:
-      - in : query
-        name: pageStr
-        schema:
-          type: string
-        description: pageNum
-    responses:
-      '200 and not loggedIn':
-        allOf:
-          - $ref: './openapi.yaml#/components/responses/successResponse'
-          - content:
-              application/json:
-                schema:
-                  $ref: './openapi.yaml#/components/schemas/Video'
-          - content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    User:
-                      type: object
-                      properties:
-                        nickname:
-                          type: string
-      '200 and loggedIn':
-        allOf:
-          - $ref: './openapi.yaml#/components/responses/successResponse'
-          - content:
-              application/json:
-                schema:
-                  $ref: './openapi.yaml#/components/schemas/Video'
-          - content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    WhatVideoUpload:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          liker:
-                            type: string
-                    User:
-                      type: object
-                      properties:
-                        nickname:
-                          type: string  
-      '400':
-        allOf:
-          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
-          - content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    info:
-                      type: string
-                      example: /video/${pageStr} not valid input
-      '500':
-        allOf:
-          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
-          - content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    info:
-                      type: string
-                      example: /video/sort/latest router error
-
-/video/sort/thumbup:
-  get:
-    tags:
-      - /video
-    summary: sort all videos in the thumbup order
-    parameters:
-      - in : query
-        name: pageStr
-        schema:
-          type: string
-        description: pageNum
-    responses:
-      '200 and not loggedIn':
-        allOf:
-          - $ref: './openapi.yaml#/components/responses/successResponse'
-          - content:
-              application/json:
-                schema:
-                  $ref: './openapi.yaml#/components/schemas/Video'
-          - content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    User:
-                      type: object
-                      properties:
-                        nickname:
-                          type: string
-      '200 and loggedIn':
-        allOf:
-          - $ref: './openapi.yaml#/components/responses/successResponse'
-          - content:
-              application/json:
-                schema:
-                  $ref: './openapi.yaml#/components/schemas/Video'
-          - content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    WhatVideoUpload:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          liker:
-                            type: string
-                    User:
-                      type: object
-                      properties:
-                        nickname:
-                          type: string  
-      '400':
-        allOf:
-          - $ref: './openapi.yaml#/components/responses/badRequestResponse'
-          - content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    info:
-                      type: string
-                      example: /video/${pageStr} not valid input
-      '500':
-        allOf:
-          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
-          - content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    info:
-                      type: string
-                      example: /video/sort/thumbup router error
-                    
 /video/upload:
   post:
     tags:
@@ -237,24 +97,68 @@
       content:
         application/json:
           schema:
-            allOf:
-              - type: object
-                properties:
-                  title:
-                    type: string
-                  discription:
-                    type: string
-                  url:
-                    type: string
-                    format: uri
-                  thumbnail:
-                    type: string
-                    format: uri
-                  tags:
-                    type: array
-                    items:
+            type: object
+            properties:
+              title:
+                type: string
+              description:
+                type: string
+              url:
+                type: string
+                format: uri
+              thumbnail:
+                type: string
+                format: uri
+              category:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+    responses:
+      '200':
+        $ref: './openapi.yaml#/components/responses/successResponse'
+      '500':
+        allOf:
+          - $ref: './openapi.yaml#/components/responses/routerErrorResponse'
+          - content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    info:
                       type: string
-              - $ref: './openapi.yaml#/components/schemas/User'
+                      example: /video/upload router error
+  patch:
+    tags:
+      - /video
+    summary: video modify router
+    requestBody:
+      description: video's info
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              description:
+                type: string
+              url:
+                type: string
+                format: uri
+              thumbnail:
+                type: string
+                format: uri
+              category:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
     responses:
       '200':
         $ref: './openapi.yaml#/components/responses/successResponse'
@@ -357,6 +261,11 @@
                 schema:
                   type: object
                   properties:
+                    WhatVideoUpload:
+                      type: object
+                      properties:
+                        liker:
+                          type: string
                     User:
                       type: object
                       properties:
@@ -510,6 +419,8 @@
                       properties:
                         nickname:
                           type: string
+                        profilePicture:
+                          type: string
       '200 and loggedIn':
         allOf:
           - $ref: './openapi.yaml#/components/responses/successResponse'
@@ -526,6 +437,8 @@
                       type: object
                       properties:
                         nickname:
+                          type: string
+                        profilePicture:
                           type: string
                     WhatVideoUpload:
                       type: list

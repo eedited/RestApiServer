@@ -42,8 +42,9 @@ let morganOption: string = 'dev';
 let sessionStoreOption: connectRedis.RedisStore | session.MemoryStore = new MemoryStore();
 
 // cors 설정
+const domain: string = process.env.FE_URL as string;
 app.use(cors({
-    origin: [process.env.FE_URL as string],
+    origin: [`https://${domain}`, `https://www.${domain}`],
     credentials: true,
 }));
 

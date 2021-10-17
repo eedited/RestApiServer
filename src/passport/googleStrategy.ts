@@ -24,6 +24,7 @@ const googleStrategyVerify: googlePassport.VerifyFunctionWithRequest = async (re
             else {
                 const nicknamePromise: User | null = await DB.prisma.user.findFirst({ where: { nickname: profile.displayName, deletedAt: null } });
                 const CN: number = await DB.prisma.user.count();
+                const S3ImgageIdx: number = Math.floor(Math.random() * 47);
                 if (nicknamePromise) {
                     await DB.prisma.user.create({
                         data: {
@@ -34,7 +35,7 @@ const googleStrategyVerify: googlePassport.VerifyFunctionWithRequest = async (re
                             logInType: 'Google',
                             emailToken: '',
                             description: '',
-                            profilePicture: process.env.DEFAULT_PROFILE_URL,
+                            profilePicture: `${process.env.DEFAULT_PROFILE_URL}/img/_default/${S3ImgageIdx}.jpeg`,
                         },
                     });
                 }
@@ -48,7 +49,7 @@ const googleStrategyVerify: googlePassport.VerifyFunctionWithRequest = async (re
                             logInType: 'Google',
                             emailToken: '',
                             description: '',
-                            profilePicture: process.env.DEFAULT_PROFILE_URL,
+                            profilePicture: `${process.env.DEFAULT_PROFILE_URL}/img/_default/${S3ImgageIdx}.jpeg`,
                         },
                     });
                 }

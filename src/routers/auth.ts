@@ -248,7 +248,7 @@ router.delete('/:userId', isLoggedIn, async (req: Request, res: Response) => {
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/google/callback', passport.authenticate('google'), (req: Request, res: Response) => {
-    res.redirect(`${process.env.FE_URL}/snsAuth`);
+    res.redirect(`${req.hostname}/snsAuth`);
 });
 
 export default router;

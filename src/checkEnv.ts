@@ -21,16 +21,19 @@ export default function checkEnv(): void {
             process.env.PORT = process.env.PORT_PRODUCTION;
             process.env.DB_URL = process.env.DB_PRODUCTION_URL;
             process.env.FE_URL = process.env.FE_PROD_URL;
+            process.env.FE_PROTOCOL = 'https';
             break;
         case 'development':
             process.env.PORT = process.env.PORT_DEVELOPMENT;
             process.env.DB_URL = process.env.DB_DEVELOPMENT_URL;
             process.env.FE_URL = process.env.FE_DEV_URL;
+            process.env.FE_PROTOCOL = 'http';
             break;
         case 'test':
             process.env.PORT = process.env.PORT_TEST;
             process.env.DB_URL = process.env.DB_TEST_URL;
             process.env.FE_URL = process.env.FE_TEST_URL;
+            process.env.FE_PROTOCOL = 'http';
             break;
         default:
             console.log('NODE_ENV is not set. Use Default(development)...');
@@ -38,6 +41,7 @@ export default function checkEnv(): void {
             process.env.PORT = process.env.PORT_DEVELOPMENT;
             process.env.DB_URL = process.env.DB_DEVELOPMENT_URL;
             process.env.FE_URL = process.env.FE_DEV_URL;
+            process.env.FE_PROTOCOL = 'http';
             break;
     }
 

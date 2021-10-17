@@ -11,7 +11,7 @@ model User {
     userId         String       @id @db.VarChar(50)
     password       String       @db.VarChar(100)
     birthday       DateTime?    @db.Date
-    nickname       String       @unique @db.VarChar(10)
+    nickname       String       @unique @db.VarChar(50)
     email          String       @db.VarChar(100)
     emailToken     String       @db.VarChar(100)
     logInType      String?      @db.VarChar(10)

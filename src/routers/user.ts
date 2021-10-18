@@ -213,7 +213,7 @@ router.post('/discomfort', isLoggedIn, async (req: Request, res: Response) => {
         const emailPromise: Promise<string>[] = [
             sendEmail('minsu2530@u.sogang.ac.kr', emailTitle, description),
             sendEmail('tjdnf2eoeld@gmail.com', emailTitle, description),
-            sendEmail('rldnd913@gmail.com', emailTitle, description),
+            sendEmail('answeqr@gmail.com', emailTitle, description),
         ];
         await Promise.all(emailPromise);
         return res.status(200).json({});

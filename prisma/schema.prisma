@@ -19,6 +19,10 @@ model User {
     followerCnt    Int          @default(0)
     description    String       @db.Text
     uploadVideoCnt Int          @default(0)
+    block          Boolean      @default(false)
+    facebook       String?      @db.VarChar(150)
+    instagram      String?      @db.VarChar(100)
+    linkedin       String?      @db.VarChar(100)
     admin          Boolean      @default(false)
     proTag         Boolean      @default(false)
     createdAt      DateTime     @default(now())

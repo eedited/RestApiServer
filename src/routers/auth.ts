@@ -28,18 +28,25 @@ router.post('/signup', isNotLoggedIn, async (req: Request, res: Response, next: 
         const emailSha256: string = crypto.createHmac('sha256', String(salt)).update(email).digest('hex');
         const hashedToken: string = await bcrypt.hash(emailSha256, salt);
         await sendEmail(email, '[eedited] 회원가입을 위한 메일 인증', signupValidation(hashedToken));
-        await DB.prisma.user.create({
-            data: {
-                userId,
-                password: hashedPassword,
-                birthday: birthday && new Date(birthday),
-                email,
-                nickname,
-                profilePicture,
-                emailToken: hashedToken,
-                description: '',
-            },
-        });
+        try {
+            await DB.prisma.user.create({
+                data: {
+                    userId,
+                    password: hashedPassword,
+                    birthday: birthday && new Date(birthday),
+                    email,
+                    nickname,
+                    profilePicture,
+                    emailToken: hashedToken,
+                    description: '',
+                },
+            });
+        }
+        catch {
+            return res.status(404).json({
+                info: '/auth/signup - DB : exists User of (userId, email, nickname)',
+            });
+        }
         return res.status(200).json({});
     }
     catch (err) {

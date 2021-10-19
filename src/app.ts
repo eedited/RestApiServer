@@ -41,10 +41,9 @@ app.set('trust proxy', 1);
 let morganOption: string = 'dev';
 let sessionStoreOption: connectRedis.RedisStore | session.MemoryStore = new MemoryStore();
 
-// cors 설정
+// CORS
 const protocol: string = process.env.FE_PROTOCOL as string;
 const domain: string = process.env.FE_URL as string;
-
 app.use(cors({
     origin: [`${protocol}://${domain}`, `${protocol}://www.${domain}`],
     credentials: true,
@@ -77,13 +76,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(session({
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     secret: String(process.env.COOKIE_SECRET),
     proxy: process.env.NODE_ENV === 'production',
+    rolling: true,
     cookie: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 1000 * 60 * 10,
+        maxAge: 1000 * 60 * 15, // 15 min
     },
     store: sessionStoreOption,
 }));

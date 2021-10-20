@@ -1,10 +1,31 @@
 import { Request, Response, Router } from 'express';
 import { User, Video, Follower } from '@prisma/client';
 import sendEmail from '../services/sendEmail';
-import { isLoggedIn } from '../middlewares/auth';
+import { isLoggedIn, isAdmin } from '../middlewares/auth';
 import DB from '../db';
 
 const router: Router = Router();
+
+router.get('/', isLoggedIn, isAdmin, async (req: Request, res: Response) => {
+    try {
+        const users: (User[] | null) = await DB.prisma.user.findMany({
+            where: {
+                deletedAt: null,
+            },
+            orderBy: {
+                nickname: 'asc',
+            },
+        });
+        return res.status(200).json({
+            users,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/user/ router error',
+        });
+    }
+});
 
 router.patch('/:userId/follow', isLoggedIn, async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
@@ -171,8 +192,6 @@ router.get('/:userId', async (req: Request, res: Response) => {
     }
 });
 
-export default router;
-
 router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
     const { description, nickname, profilePicture }: typeof req.body = req.body;
     const user: Express.User = req.user as Express.User;
@@ -205,6 +224,49 @@ router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
     }
 });
 
+router.patch('/change/sns', isLoggedIn, async (req: Request, res: Response) => {
+    const { facebook, instagram, linkedin }: typeof req.body = req.body;
+    const user: Express.User = req.user as Express.User;
+    try {
+        await DB.prisma.user.update({
+            where: {
+                userId: user.userId,
+            },
+            data: {
+                facebook,
+                instagram,
+                linkedin,
+            },
+        });
+        return res.status(200).json({});
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/user/change/sns router error',
+        });
+    }
+});
+
+router.patch('/block', isLoggedIn, isAdmin, async (req: Request, res: Response) => {
+    const userId: string = req.query.userId as string;
+    try {
+        await DB.prisma.user.update({
+            where: {
+                userId,
+            },
+            data: {
+                block: true,
+            },
+        });
+        return res.status(200).json({});
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/user/block?userId= router error',
+        });
+    }
+});
+
 router.post('/discomfort', isLoggedIn, async (req: Request, res: Response) => {
     const { title, description }: {title: string, description: string} = req.body;
     const { user }: Request = req;
@@ -224,3 +286,5 @@ router.post('/discomfort', isLoggedIn, async (req: Request, res: Response) => {
         });
     }
 });
+
+export default router;

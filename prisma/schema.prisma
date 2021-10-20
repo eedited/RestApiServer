@@ -11,7 +11,7 @@ model User {
     userId         String       @id @db.VarChar(50)
     password       String       @db.VarChar(100)
     birthday       DateTime?    @db.Date
-    nickname       String       @unique @db.VarChar(10)
+    nickname       String       @unique @db.VarChar(50)
     email          String       @db.VarChar(100)
     emailToken     String       @db.VarChar(100)
     logInType      String?      @db.VarChar(10)
@@ -19,6 +19,10 @@ model User {
     followerCnt    Int          @default(0)
     description    String       @db.Text
     uploadVideoCnt Int          @default(0)
+    block          Boolean      @default(false)
+    facebook       String?      @db.VarChar(150)
+    instagram      String?      @db.VarChar(100)
+    linkedin       String?      @db.VarChar(100)
     admin          Boolean      @default(false)
     proTag         Boolean      @default(false)
     createdAt      DateTime     @default(now())

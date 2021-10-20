@@ -95,6 +95,8 @@
         "eslint-plugin-import": "^2.23.4",
         "husky": "4.3.8",
         "jest": "27.0.6",
+        "jest-mock-extended": "^2.0.4",
+        "jest-mock-req-res": "^1.0.2",
         "lint-staged": "11.1.1",
         "prisma": "2.27.0",
         "supertest": "^6.1.4",

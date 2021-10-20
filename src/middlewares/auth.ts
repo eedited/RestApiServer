@@ -50,3 +50,25 @@ export const checkPassword: expressMiddleware = async (req: Request, res: Respon
     }
     return next();
 };
+
+export const isAdmin: expressMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    const { user }: Request = req;
+    try {
+        if (!user) {
+            return res.status(404).json({
+                info: 'isAdmin there is no user',
+            });
+        }
+        if (user.admin) {
+            return next();
+        }
+        return res.status(403).json({
+            info: 'need admin authorized',
+        });
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: 'isAdmin Middleware',
+        });
+    }
+};

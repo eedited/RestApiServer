@@ -247,7 +247,7 @@ router.patch('/change/sns', isLoggedIn, async (req: Request, res: Response) => {
     }
 });
 
-router.patch('/block/', isLoggedIn, isAdmin, async (req: Request, res: Response) => {
+router.patch('/block', isLoggedIn, isAdmin, async (req: Request, res: Response) => {
     const userId: string = req.query.userId as string;
     try {
         await DB.prisma.user.update({

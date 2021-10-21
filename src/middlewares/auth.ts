@@ -72,3 +72,25 @@ export const isAdmin: expressMiddleware = async (req: Request, res: Response, ne
         });
     }
 };
+
+export const isNotBlock: expressMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    const { user }: Request = req;
+    try {
+        if (!user) {
+            return res.status(404).json({
+                info: 'isAdmin there is no user',
+            });
+        }
+        if (!user.block) {
+            return next();
+        }
+        return res.status(403).json({
+            info: 'blocked user',
+        });
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: 'isNotBlock Middleware',
+        });
+    }
+};

@@ -117,6 +117,9 @@ router.get('/check', isLoggedIn, async (req: Request, res: Response) => {
         profilePicture: user.profilePicture,
         description: user.description,
         proTag: user.proTag,
+        facebook: user.facebook,
+        instagram: user.instagram,
+        linkedin: user.linkedin,
     });
 });
 

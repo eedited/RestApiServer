@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { User, Video, VideoLiker } from '@prisma/client';
 import AWS from 'aws-sdk';
-import { isLoggedIn } from '../middlewares/auth';
+import { isLoggedIn, isNotBlock } from '../middlewares/auth';
 import DB from '../db';
 
 const router: Router = Router();
@@ -210,7 +210,7 @@ router.get('/', async (req: Request, res: Response) => {
     }
 });
 
-router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
+router.post('/upload', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { title, description, url, thumbnail, category, tags }: Video&{tags: string[]} = req.body;
     const user: Express.User = req.user as Express.User;
     try {
@@ -247,7 +247,7 @@ router.post('/upload', isLoggedIn, async (req: Request, res: Response) => {
         });
     }
 });
-router.patch('/upload', isLoggedIn, async (req: Request, res: Response) => {
+router.patch('/upload', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { id, title, description, url, thumbnail, category, tags }: Video&{tags: string[]} = req.body;
     const user: Express.User = req.user as Express.User;
     try {
@@ -298,7 +298,7 @@ router.patch('/upload', isLoggedIn, async (req: Request, res: Response) => {
     }
 });
 
-router.post('/getTags', isLoggedIn, (req: Request, res: Response) => {
+router.post('/getTags', isLoggedIn, isNotBlock, (req: Request, res: Response) => {
     const { thumbnail }: Video = req.body;
     try {
         AWS.config.update({
@@ -440,7 +440,7 @@ router.get('/:videoId', async (req: Request, res: Response) => {
     }
 });
 
-router.patch('/:videoId/like', isLoggedIn, async (req: Request, res: Response) => {
+router.patch('/:videoId/like', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
     const user: Express.User = req.user as Express.User;
     try {
@@ -510,7 +510,7 @@ router.patch('/:videoId/like', isLoggedIn, async (req: Request, res: Response) =
     }
 });
 
-router.get('/:videoId/delete', isLoggedIn, async (req: Request, res: Response) => {
+router.get('/:videoId/delete', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { videoId }: typeof req.params = req.params;
     const user: Express.User = req.user as Express.User;
     try {

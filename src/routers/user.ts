@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { User, Video, Follower } from '@prisma/client';
 import sendEmail from '../services/sendEmail';
-import { isLoggedIn, isAdmin } from '../middlewares/auth';
+import { isLoggedIn, isAdmin, isNotBlock } from '../middlewares/auth';
 import DB from '../db';
 
 const router: Router = Router();
@@ -27,7 +27,7 @@ router.get('/', isLoggedIn, isAdmin, async (req: Request, res: Response) => {
     }
 });
 
-router.patch('/:userId/follow', isLoggedIn, async (req: Request, res: Response) => {
+router.patch('/:userId/follow', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
     const user: Express.User = req.user as Express.User;
     try {
@@ -192,7 +192,7 @@ router.get('/:userId', async (req: Request, res: Response) => {
     }
 });
 
-router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
+router.patch('/change', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { description, nickname, profilePicture }: typeof req.body = req.body;
     const user: Express.User = req.user as Express.User;
     try {
@@ -224,7 +224,7 @@ router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
     }
 });
 
-router.patch('/change/sns', isLoggedIn, async (req: Request, res: Response) => {
+router.patch('/change/sns', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { facebook, instagram, linkedin }: typeof req.body = req.body;
     const user: Express.User = req.user as Express.User;
     try {
@@ -247,7 +247,7 @@ router.patch('/change/sns', isLoggedIn, async (req: Request, res: Response) => {
     }
 });
 
-router.patch('/block/', isLoggedIn, isAdmin, async (req: Request, res: Response) => {
+router.patch('/block', isLoggedIn, isAdmin, async (req: Request, res: Response) => {
     const userId: string = req.query.userId as string;
     try {
         await DB.prisma.user.update({

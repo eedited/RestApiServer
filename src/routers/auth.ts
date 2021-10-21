@@ -4,7 +4,7 @@ import crypto from 'crypto';
 import passport from 'passport';
 import { User } from '@prisma/client';
 import { signupValidation } from '../services/mailContent';
-import { isLoggedIn, isNotLoggedIn, checkPassword } from '../middlewares/auth';
+import { isLoggedIn, isNotLoggedIn, checkPassword, isNotBlock } from '../middlewares/auth';
 import sendEmail from '../services/sendEmail';
 import DB from '../db';
 
@@ -207,7 +207,7 @@ router.post('/change/password', isLoggedIn, checkPassword, async (req: Request, 
     }
 });
 
-router.delete('/:userId', isLoggedIn, async (req: Request, res: Response) => {
+router.delete('/:userId', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
     const user: Express.User = req.user as Express.User;
     try {

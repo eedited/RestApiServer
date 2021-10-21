@@ -120,6 +120,7 @@ router.get('/check', isLoggedIn, async (req: Request, res: Response) => {
         facebook: user.facebook,
         instagram: user.instagram,
         linkedin: user.linkedin,
+        twitter: user.twitter,
     });
 });
 

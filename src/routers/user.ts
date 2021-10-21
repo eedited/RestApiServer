@@ -225,7 +225,7 @@ router.patch('/change', isLoggedIn, isNotBlock, async (req: Request, res: Respon
 });
 
 router.patch('/change/sns', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
-    const { facebook, instagram, linkedin }: typeof req.body = req.body;
+    const { facebook, instagram, linkedin, twitter }: typeof req.body = req.body;
     const user: Express.User = req.user as Express.User;
     try {
         await DB.prisma.user.update({
@@ -236,6 +236,7 @@ router.patch('/change/sns', isLoggedIn, isNotBlock, async (req: Request, res: Re
                 facebook,
                 instagram,
                 linkedin,
+                twitter,
             },
         });
         return res.status(200).json({});

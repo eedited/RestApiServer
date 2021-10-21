@@ -3,7 +3,8 @@ import { User, Video } from '@prisma/client';
 import DB from '../db';
 
 const router: Router = Router();
-const take: number = 20;
+const videoTake: number = 20;
+const userTake: number = 4;
 
 router.get('/', async (req: Request, res: Response) => {
     const toFind: string = req.query.toFind as string;
@@ -53,8 +54,8 @@ router.get('/', async (req: Request, res: Response) => {
                     },
                 },
                 orderBy: { followerCnt: 'desc' },
-                skip: (pageNum - 1) * take,
-                take,
+                skip: (pageNum - 1) * userTake,
+                take: userTake,
             });
             videos = await DB.prisma.video.findMany({
                 where: {
@@ -104,8 +105,8 @@ router.get('/', async (req: Request, res: Response) => {
                     },
                 },
                 orderBy: { likeCnt: 'desc' },
-                skip: (pageNum - 1) * take,
-                take,
+                skip: (pageNum - 1) * videoTake,
+                take: videoTake,
             });
         }
         else {
@@ -132,8 +133,8 @@ router.get('/', async (req: Request, res: Response) => {
                     ],
                 },
                 orderBy: { followerCnt: 'desc' },
-                skip: (pageNum - 1) * take,
-                take,
+                skip: (pageNum - 1) * userTake,
+                take: userTake,
             });
             videos = await DB.prisma.video.findMany({
                 where: {
@@ -174,8 +175,8 @@ router.get('/', async (req: Request, res: Response) => {
                     },
                 },
                 orderBy: { likeCnt: 'desc' },
-                skip: (pageNum - 1) * take,
-                take,
+                skip: (pageNum - 1) * videoTake,
+                take: videoTake,
             });
         }
         return res.status(200).json({

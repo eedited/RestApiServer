@@ -84,7 +84,7 @@ export const isNotBlock: expressMiddleware = async (req: Request, res: Response,
         if (!user.block) {
             return next();
         }
-        return res.status(403).json({
+        return res.status(456).json({
             info: 'blocked user',
         });
     }

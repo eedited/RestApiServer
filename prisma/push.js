@@ -14,7 +14,6 @@ default:
     process.env.DB_URL = process.env.DB_DEVELOPMENT_URL;
     break;
 }
-process.env.DB_URL += process.env.npm_package_version;
 
 exec('npx prisma db push', (err, stdout, stderr) => {
     err && console.log(err);

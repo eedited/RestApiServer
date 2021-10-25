@@ -70,6 +70,29 @@ router.patch('/:userId/follow', isLoggedIn, async (req: Request, res: Response) 
     }
 });
 
+router.post('/exist', async (req: Request, res: Response) => {
+    const { userId }: typeof req.body = req.body;
+    try {
+        const finduser: (User | null) = await DB.prisma.user.findFirst({
+            where: {
+                userId,
+                deletedAt: null,
+            },
+        });
+        if (!finduser) {
+            return res.status(404).json({
+                info: '/:userId/like user not found',
+            });
+        }
+        return res.status(200).json({});
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/user/exist - Error',
+        });
+    }
+});
+
 router.get('/:userId', async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
     const { user }: Request = req;
@@ -147,7 +170,7 @@ router.get('/:userId', async (req: Request, res: Response) => {
         }
         if (!userInfo) {
             return res.status(404).json({
-                info: `/user/${userId} user not found`,
+                info: `/user/${userId} user not found - EC101`,
             });
         }
         const categories: {
@@ -170,8 +193,6 @@ router.get('/:userId', async (req: Request, res: Response) => {
         });
     }
 });
-
-export default router;
 
 router.patch('/change', isLoggedIn, async (req: Request, res: Response) => {
     const { description, nickname, profilePicture }: typeof req.body = req.body;
@@ -224,3 +245,5 @@ router.post('/discomfort', isLoggedIn, async (req: Request, res: Response) => {
         });
     }
 });
+
+export default router;

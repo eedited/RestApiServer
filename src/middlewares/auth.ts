@@ -19,7 +19,8 @@ export const isLoggedIn: expressMiddleware = (req: Request, res: Response, next:
 export const isNotLoggedIn: expressMiddleware = (req: Request, res: Response, next: NextFunction) => {
     if (!req.isAuthenticated()) {
         req.body.token = req.body.tokenId;
-        req.body.userId = req.body.googleId;
+        // eslint-disable-next-line no-self-assign
+        req.body.googleId = req.body.googleId;
         return next();
     }
     return res.status(403).json({
@@ -102,7 +103,7 @@ export const isNotBlock: expressMiddleware = async (req: Request, res: Response,
 };
 
 export const GoogleLogin: expressMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    const { token, userId }: typeof req.body = req.body;
+    const { token, googleId }: typeof req.body = req.body;
     try {
         const ticket: LoginTicket = await client.verifyIdToken({
             idToken: token,
@@ -114,7 +115,6 @@ export const GoogleLogin: expressMiddleware = async (req: Request, res: Response
                 info: 'isNotBlock Middleware user Not Found',
             });
         }
-        console.log(userInfo);
         let user: User | null = await DB.prisma.user.findFirst({
             where: {
                 email: userInfo.email,
@@ -134,7 +134,7 @@ export const GoogleLogin: expressMiddleware = async (req: Request, res: Response
             }
             await DB.prisma.user.create({
                 data: {
-                    userId,
+                    userId: googleId,
                     password: 'Google',
                     email: userInfo.email as string,
                     nickname: userInfo.name as string + CN,
@@ -146,7 +146,7 @@ export const GoogleLogin: expressMiddleware = async (req: Request, res: Response
             });
             user = await DB.prisma.user.findFirst({
                 where: {
-                    userId,
+                    userId: googleId,
                     deletedAt: null,
                 },
             });

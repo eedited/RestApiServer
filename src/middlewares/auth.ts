@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
+import { OAuth2Client, LoginTicket, TokenPayload } from 'google-auth-library';
 import { User } from '@prisma/client';
+import { doesNotMatch } from 'assert';
 import DB from '../db';
+
+const client: OAuth2Client = new OAuth2Client(process.env.CLIENT_ID);
 
 export const isLoggedIn: expressMiddleware = (req: Request, res: Response, next: NextFunction) => {
     if (req.isAuthenticated()) {
@@ -14,6 +18,8 @@ export const isLoggedIn: expressMiddleware = (req: Request, res: Response, next:
 
 export const isNotLoggedIn: expressMiddleware = (req: Request, res: Response, next: NextFunction) => {
     if (!req.isAuthenticated()) {
+        req.body.token = req.body.tokenId;
+        req.body.userId = req.body.googleId;
         return next();
     }
     return res.status(403).json({
@@ -91,6 +97,66 @@ export const isNotBlock: expressMiddleware = async (req: Request, res: Response,
     catch (err) {
         return res.status(500).json({
             info: 'isNotBlock Middleware',
+        });
+    }
+};
+
+export const GoogleLogin: expressMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+    const { token, userId }: typeof req.body = req.body;
+    try {
+        const ticket: LoginTicket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.CLIENT_ID,
+        });
+        const userInfo: TokenPayload | undefined = ticket.getPayload();
+        if (typeof userInfo === 'undefined') {
+            return res.status(404).json({
+                info: 'isNotBlock Middleware user Not Found',
+            });
+        }
+        console.log(userInfo);
+        let user: User | null = await DB.prisma.user.findFirst({
+            where: {
+                email: userInfo.email,
+                deletedAt: null,
+            },
+        });
+        if (!user) {
+            const nicknamePromise: User | null = await DB.prisma.user.findFirst({
+                where: {
+                    nickname: userInfo.name,
+                    deletedAt: null,
+                },
+            });
+            let CN: number | string = '';
+            if (nicknamePromise) {
+                CN = await DB.prisma.user.count();
+            }
+            await DB.prisma.user.create({
+                data: {
+                    userId,
+                    password: 'Google',
+                    email: userInfo.email as string,
+                    nickname: userInfo.name as string + CN,
+                    logInType: 'Google',
+                    emailToken: '',
+                    description: '',
+                    profilePicture: userInfo.picture,
+                },
+            });
+            user = await DB.prisma.user.findFirst({
+                where: {
+                    userId,
+                    deletedAt: null,
+                },
+            });
+        }
+        req.body.userId = user?.userId;
+        return next();
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: 'GoogleLogin middleware',
         });
     }
 };

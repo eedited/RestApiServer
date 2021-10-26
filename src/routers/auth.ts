@@ -2,9 +2,10 @@ import { Request, Response, NextFunction, Router } from 'express';
 import bcrypt, { hash } from 'bcrypt';
 import crypto from 'crypto';
 import passport from 'passport';
-import { User } from '@prisma/client';
+import localPassport from 'passport-local';
+import { PrismaClient, User } from '@prisma/client';
 import { signupValidation } from '../services/mailContent';
-import { isLoggedIn, isNotLoggedIn, checkPassword, isNotBlock } from '../middlewares/auth';
+import { isLoggedIn, isNotLoggedIn, checkPassword, isNotBlock, GoogleLogin } from '../middlewares/auth';
 import sendEmail from '../services/sendEmail';
 import DB from '../db';
 
@@ -148,6 +149,30 @@ router.post('/login', isNotLoggedIn, (req: Request, res: Response, next: NextFun
     })(req, res, next);
 });
 
+router.post('/login/google', isNotLoggedIn, GoogleLogin, async (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate('googleCustom', (authErr: Error | null, user: Express.User | null) => {
+        if (authErr) {
+            return res.status(500).json({
+                info: '/auth/login - Passport Error',
+            });
+        }
+        if (!user) {
+            return res.status(401).json({
+                info: '/auth/login - Unregistered user or incorrect password',
+            });
+        }
+
+        return req.login(user, (err: Error) => {
+            if (err) {
+                return res.status(500).json({
+                    info: '/auth/login - Passport Error',
+                });
+            }
+            return res.status(200).json({});
+        });
+    })(req, res, next);
+});
+
 router.get('/logout', isLoggedIn, async (req: Request, res: Response) => {
     req.logOut();
     req.session.destroy(() => {});
@@ -259,7 +284,12 @@ router.delete('/:userId', isLoggedIn, isNotBlock, async (req: Request, res: Resp
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/google/callback', passport.authenticate('google'), (req: Request, res: Response) => {
-    res.redirect(`https://${req.hostname}/snsAuth`);
+    if (process.env.NODE_ENV === 'production') {
+        res.redirect(`https://${req.hostname}:${process.env.FE_PORT}/snsAuth`);
+    }
+    else {
+        res.redirect(`http://${req.hostname}:8080/snsAuth`);
+    }
 });
 
 export default router;

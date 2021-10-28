@@ -27,6 +27,82 @@ router.get('/', isLoggedIn, isAdmin, async (req: Request, res: Response) => {
     }
 });
 
+router.get('/:userId/like', async (req: Request, res: Response) => {
+    const { userId }: typeof req.params = req.params;
+    try {
+        const likeing: { videoId: string; }[] = await DB.prisma.videoLiker.findMany({
+            where: {
+                liker: userId,
+                deletedAt: null,
+            },
+            select: {
+                videoId: true,
+            },
+        });
+        const likeingVideo: Promise<Video | null>[] = likeing.map(async (value: { videoId: string; }) => {
+            try {
+                const video: Video | null = await DB.prisma.video.findFirst({
+                    where: {
+                        id: value.videoId,
+                        deletedAt: null,
+                    },
+                });
+                return video;
+            }
+            catch (err) {
+                return null;
+            }
+        });
+        const videos: (Video | null)[] = await Promise.all(likeingVideo);
+        return res.status(200).json({
+            videos,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/user/:userId/like router error',
+        });
+    }
+});
+
+router.get('/:userId/follow', async (req: Request, res: Response) => {
+    const { userId }: typeof req.params = req.params;
+    try {
+        const following: { followingId: string; }[] = await DB.prisma.follower.findMany({
+            where: {
+                followerId: userId,
+                deletedAt: null,
+            },
+            select: {
+                followingId: true,
+            },
+        });
+        const followingUser: Promise<User | null>[] = following.map(async (value: { followingId: string; }) => {
+            try {
+                const user: User | null = await DB.prisma.user.findFirst({
+                    where: {
+                        userId: value.followingId,
+                        deletedAt: null,
+                    },
+                });
+                return user;
+            }
+            catch (err) {
+                return null;
+            }
+        });
+        const users: (User | null)[] = await Promise.all(followingUser);
+        return res.status(200).json({
+            users,
+        });
+    }
+    catch (err) {
+        return res.status(500).json({
+            info: '/user/:userId/follow router error',
+        });
+    }
+});
+
 router.patch('/:userId/follow', isLoggedIn, isNotBlock, async (req: Request, res: Response) => {
     const { userId }: typeof req.params = req.params;
     const user: Express.User = req.user as Express.User;

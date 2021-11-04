@@ -316,12 +316,46 @@ router.get('/:userId', async (req: Request, res: Response) => {
         });
         const likeingVideo: Promise<Video | null>[] = likeing.map(async (value: { videoId: string; }) => {
             try {
-                const video: Video | null = await DB.prisma.video.findFirst({
-                    where: {
-                        id: value.videoId,
-                        deletedAt: null,
-                    },
-                });
+                let video: Video | null;
+                if (user) {
+                    video = await DB.prisma.video.findFirst({
+                        where: {
+                            id: value.videoId,
+                            deletedAt: null,
+                        },
+                        include: {
+                            WhatVideoUpload: {
+                                where: {
+                                    liker: user.userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    liker: true,
+                                },
+                            },
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
+                        },
+                    });
+                }
+                else {
+                    video = await DB.prisma.video.findFirst({
+                        where: {
+                            id: value.videoId,
+                            deletedAt: null,
+                        },
+                        include: {
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
+                        },
+                    });
+                }
                 return video;
             }
             catch (err) {

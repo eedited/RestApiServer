@@ -303,7 +303,8 @@ router.get('/:userId', async (req: Request, res: Response) => {
                 return null;
             }
         });
-        const followers: (User | null)[] = await Promise.all(followingUser);
+        const rowFollowers: (User | null)[] = await Promise.all(followingUser);
+        const followers: (User | null)[] = rowFollowers.filter((value: User | null) => value != null);
         // 좋아요 동영상 구하기
         const likeing: { videoId: string; }[] = await DB.prisma.videoLiker.findMany({
             where: {
@@ -362,7 +363,8 @@ router.get('/:userId', async (req: Request, res: Response) => {
                 return null;
             }
         });
-        const likeVideos: (Video | null)[] = await Promise.all(likeingVideo);
+        const rowLikeVideos: (Video | null)[] = await Promise.all(likeingVideo);
+        const likeVideos: (Video | null)[] = rowLikeVideos.filter((value: Video | null) => value != null);
         return res.status(200).json({
             ...userInfo,
             categories,

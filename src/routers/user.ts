@@ -279,9 +279,95 @@ router.get('/:userId', async (req: Request, res: Response) => {
                 acc[x] = (acc[x] || 0) + 1;
                 return acc;
             }, {});
+        // 팔로워 구하기
+        const following: { followingId: string; }[] = await DB.prisma.follower.findMany({
+            where: {
+                followerId: userId,
+                deletedAt: null,
+            },
+            select: {
+                followingId: true,
+            },
+        });
+        const followingUser: Promise<User | null>[] = following.map(async (value: { followingId: string; }) => {
+            try {
+                const follow: User | null = await DB.prisma.user.findFirst({
+                    where: {
+                        userId: value.followingId,
+                        deletedAt: null,
+                    },
+                });
+                return follow;
+            }
+            catch (err) {
+                return null;
+            }
+        });
+        const followers: (User | null)[] = await Promise.all(followingUser);
+        // 좋아요 동영상 구하기
+        const likeing: { videoId: string; }[] = await DB.prisma.videoLiker.findMany({
+            where: {
+                liker: userId,
+                deletedAt: null,
+            },
+            select: {
+                videoId: true,
+            },
+        });
+        const likeingVideo: Promise<Video | null>[] = likeing.map(async (value: { videoId: string; }) => {
+            try {
+                let video: Video | null;
+                if (user) {
+                    video = await DB.prisma.video.findFirst({
+                        where: {
+                            id: value.videoId,
+                            deletedAt: null,
+                        },
+                        include: {
+                            WhatVideoUpload: {
+                                where: {
+                                    liker: user.userId,
+                                    deletedAt: null,
+                                },
+                                select: {
+                                    liker: true,
+                                },
+                            },
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
+                        },
+                    });
+                }
+                else {
+                    video = await DB.prisma.video.findFirst({
+                        where: {
+                            id: value.videoId,
+                            deletedAt: null,
+                        },
+                        include: {
+                            User: {
+                                select: {
+                                    nickname: true,
+                                },
+                            },
+                        },
+                    });
+                }
+                return video;
+            }
+            catch (err) {
+                return null;
+            }
+        });
+        const likeVideos: (Video | null)[] = await Promise.all(likeingVideo);
         return res.status(200).json({
             ...userInfo,
             categories,
+            followers,
+            likeVideos,
         });
     }
     catch (err) {

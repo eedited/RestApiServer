@@ -181,7 +181,9 @@ router.post('/exist', async (req: Request, res: Response) => {
                 info: '/:userId/like user not found',
             });
         }
-        return res.status(200).json({});
+        return res.status(200).json({
+            nickname: finduser.nickname,
+        });
     }
     catch (err) {
         return res.status(500).json({
